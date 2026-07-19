@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: paola-cortes-site
+    env: static
+    rootDir: site
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_BASE_PATH
+        value: /
+      - key: VITE_SITE_URL
+        sync: false
+      - key: VITE_GA4_ID
+        sync: false
+      - key: VITE_WHATSAPP_NUMBER
+        sync: false
+      - key: VITE_CONTACT_EMAIL
+        sync: false
+      - key: VITE_BUSINESS_HOURS
+        sync: false
+      - key: VITE_INSTAGRAM_HANDLE
+        sync: false
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
