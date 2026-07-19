@@ -1,4 +1,5 @@
 import { GA4_ID } from './legal/constants.js'
+import { persistWhatsAppClick } from './persistence.js'
 
 function isValidGa4Id(id) {
   return typeof id === 'string' && /^G-[A-Z0-9]+$/i.test(id)
@@ -26,6 +27,7 @@ export function initAnalytics() {
 }
 
 export function trackWhatsAppClick(boton) {
+  persistWhatsAppClick({ boton })
   if (typeof window.gtag !== 'function') return
   window.gtag('event', 'click_whatsapp', { boton })
 }

@@ -7,6 +7,8 @@ import {
   CONTACT_EMAIL,
   BUSINESS_HOURS,
   SITE_URL,
+  API_BASE_URL,
+  LEAD_POLICY_VERSION,
   OG_IMAGE,
   BUSINESS_LOCATION,
   href,
@@ -24,6 +26,7 @@ import {
 import { escapeHtml } from './security/html.js'
 import { initAnalytics } from './analytics.js'
 import { renderWhatsAppButton, bindWhatsAppTracking } from './whatsapp.js'
+import { persistLeadSubmission } from './persistence.js'
 
 function pending(label = 'próximamente') {
   return `<span class="pending-inline">${escapeHtml(label)}</span>`
@@ -329,6 +332,8 @@ function renderContact() {
     ? `<p><a href="${escapeHtml(ig)}" target="_blank" rel="noopener noreferrer">Instagram @${escapeHtml(ig.split('/').filter(Boolean).pop())}</a></p>`
     : `<p>Instagram: ${pending()}</p>`
 
+  const leadForm = renderLeadForm()
+
   return `
     <section id="contacto" class="section">
       <div class="section-inner narrow contact-block">
@@ -337,6 +342,7 @@ function renderContact() {
         <div class="section-actions">
           ${renderWhatsAppButton('Escríbeme por WhatsApp', 'contacto', 'primary')}
         </div>
+        ${leadForm}
         <div class="contact-meta">
           ${emailBlock}
           ${hoursBlock}
@@ -345,6 +351,76 @@ function renderContact() {
         </div>
       </div>
     </section>
+  `
+}
+
+function renderLeadForm() {
+  if (!API_BASE_URL) {
+    return `
+      <div class="lead-form-panel is-pending">
+        <h3>Formulario de contacto</h3>
+        <p>Esta opción se está activando para guardar solicitudes con consentimiento explícito.</p>
+        <p class="pending-note">próximamente</p>
+      </div>
+    `
+  }
+
+  const consentText =
+    'Autorizo el tratamiento de mis datos de contacto para responder mi solicitud, conforme a la Ley 1581 de 2012.'
+
+  return `
+    <form class="lead-form-panel lead-form" data-lead-form novalidate>
+      <h3>También puedes dejar tus datos aquí</h3>
+      <p class="lead-form-disclaimer">
+        Este formulario es solo para contacto inicial. No incluyas detalles clínicos sensibles.
+      </p>
+      <div class="lead-grid">
+        <label>
+          Nombre (opcional)
+          <input type="text" name="name" maxlength="120" autocomplete="name" />
+        </label>
+        <label>
+          Canal preferido
+          <select name="contactChannel" required>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="email">Correo</option>
+            <option value="phone">Llamada</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        Dato de contacto
+        <input type="text" name="contactValue" minlength="3" maxlength="190" required autocomplete="off" />
+      </label>
+      <label>
+        Tema general
+        <select name="interestChannel" required>
+          <option value="individual">Terapia individual</option>
+          <option value="pareja">Terapia de pareja</option>
+          <option value="familia">Terapia familiar</option>
+          <option value="duelo">Proceso de duelo</option>
+          <option value="ansiedad">Ansiedad / regulación emocional</option>
+          <option value="depresion">Estado de ánimo</option>
+          <option value="urgencia">Acompañamiento urgente</option>
+          <option value="general">Otro tema</option>
+        </select>
+      </label>
+      <label>
+        Mensaje breve (opcional)
+        <textarea name="messageShort" maxlength="500" rows="3" placeholder="Ejemplo: Quiero conocer disponibilidad y costo."></textarea>
+      </label>
+      <label class="consent-check">
+        <input type="checkbox" name="consentGiven" required />
+        <span>
+          Acepto el tratamiento de mis datos de contacto para que me respondan esta solicitud.
+          Leí la <a href="${escapeHtml(href('privacidad/'))}" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
+        </span>
+      </label>
+      <input type="hidden" name="consentText" value="${escapeHtml(consentText)}" />
+      <input type="hidden" name="policyVersion" value="${escapeHtml(LEAD_POLICY_VERSION || 'v1.0')}" />
+      <button class="btn btn-outline" type="submit">Enviar solicitud</button>
+      <p class="lead-form-status" data-lead-status role="status" aria-live="polite"></p>
+    </form>
   `
 }
 
@@ -389,14 +465,25 @@ function renderPrivacyContent() {
         <h2>Datos que podemos tratar</h2>
         <p>
           Si nos contactas por WhatsApp, correo u otros canales que indiquemos en este sitio,
-          podemos recibir datos de identificación y contacto (nombre, número telefónico, correo)
-          y el mensaje que nos envíes para solicitar información o agendar una sesión.
-          No pedimos motivos clínicos detallados a través de formularios web en esta versión del sitio.
+          podemos recibir datos de identificación y contacto (nombre, número telefónico, correo),
+          canal de interés y mensaje breve para responder la solicitud o agendar una sesión.
+          Te pedimos no incluir información clínica sensible en el formulario web.
         </p>
         <h2>Finalidad</h2>
         <p>
           Responder solicitudes de contacto, orientar sobre los servicios de terapia online
           y coordinar el agendamiento de citas.
+        </p>
+        <h2>Consentimiento explícito</h2>
+        <p>
+          Antes de guardar una solicitud en base de datos, solicitamos autorización explícita
+          y registramos versión de política, fecha, huella técnica de origen e información mínima
+          necesaria para trazabilidad y seguridad.
+        </p>
+        <h2>Retención y eliminación</h2>
+        <p>
+          Los datos de contacto se conservan hasta por 180 días o menos si solicitas su eliminación.
+          Puedes ejercer tus derechos de consulta, actualización, rectificación o supresión en cualquier momento.
         </p>
         <h2>Derechos del titular</h2>
         <p>
@@ -486,7 +573,58 @@ function bindShell() {
   bindHeader()
   bindFaq()
   bindWhatsAppTracking(document)
+  bindLeadForm()
   bindScrollFades()
+}
+
+function bindLeadForm() {
+  const form = document.querySelector('[data-lead-form]')
+  if (!form) return
+
+  const status = form.querySelector('[data-lead-status]')
+  const submit = form.querySelector('button[type="submit"]')
+  const setStatus = (message, tone = 'info') => {
+    if (!status) return
+    status.textContent = message
+    status.dataset.tone = tone
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const fields = new FormData(form)
+
+    const consentGiven = fields.get('consentGiven') === 'on'
+    if (!consentGiven) {
+      setStatus('Debes autorizar el tratamiento de datos para enviar la solicitud.', 'error')
+      return
+    }
+
+    const contactValue = String(fields.get('contactValue') || '').trim()
+    if (contactValue.length < 3) {
+      setStatus('Ingresa un dato de contacto válido.', 'error')
+      return
+    }
+
+    submit?.setAttribute('disabled', 'disabled')
+    setStatus('Enviando tu solicitud...', 'info')
+
+    try {
+      await persistLeadSubmission({
+        name: String(fields.get('name') || '').trim(),
+        contactChannel: String(fields.get('contactChannel') || 'whatsapp'),
+        contactValue,
+        interestChannel: String(fields.get('interestChannel') || 'general'),
+        messageShort: String(fields.get('messageShort') || '').trim(),
+        consentText: String(fields.get('consentText') || '').trim()
+      })
+      form.reset()
+      setStatus('Gracias. Tu solicitud fue enviada y te responderé pronto.', 'success')
+    } catch (error) {
+      setStatus('No fue posible enviar el formulario. Intenta por WhatsApp mientras lo revisamos.', 'error')
+    } finally {
+      submit?.removeAttribute('disabled')
+    }
+  })
 }
 
 export function mountHome() {

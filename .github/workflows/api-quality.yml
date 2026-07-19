@@ -1,0 +1,38 @@
+name: API Quality Checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-quality.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-quality.yml'
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/paola_cortes
+      CORS_ALLOWED_ORIGINS: http://localhost:5181
+      IP_HASH_SALT: test-salt
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate imports
+        run: python -m compileall app

@@ -17,6 +17,8 @@ Abre **http://localhost:5181/**
 Configura en variables de entorno (ver `.env.example`) o en `src/legal/constants.js`:
 - WhatsApp, correo, horarios, Instagram, GA4
 - `VITE_SITE_URL` para canonical/OG/sitemap
+- `VITE_API_BASE_URL` para persistencia de eventos/leads
+- `VITE_LEAD_POLICY_VERSION` para versionar consentimiento
 
 Mientras estén vacíos, la UI muestra **próximamente**.
 
@@ -30,4 +32,4 @@ Mientras estén vacíos, la UI muestra **próximamente**.
 
 - Build verificado: `npm run build`
 - Publicación principal: GitHub Pages (workflow de Actions)
-- Espejo: Render Static Site
+- API + DB: Render (`paola-cortes-api` + `paola-cortes-db`)

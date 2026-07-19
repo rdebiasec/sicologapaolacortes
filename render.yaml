@@ -21,10 +21,14 @@ services:
         sync: false
       - key: VITE_INSTAGRAM_HANDLE
         sync: false
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_LEAD_POLICY_VERSION
+        value: v1.0
     headers:
       - path: /*
         name: Content-Security-Policy
-        value: "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://www.googletagmanager.com; connect-src 'self' http://localhost:8000 https://*.onrender.com https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
@@ -34,3 +38,38 @@ services:
       - path: /*
         name: X-Frame-Options
         value: DENY
+
+  - type: web
+    name: paola-cortes-api
+    runtime: python
+    rootDir: api
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_PORT
+        value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: paola-cortes-db
+          property: connectionString
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://rdebiasec.github.io,https://paola-cortes-site.onrender.com,https://paola-cortes-render.onrender.com,http://localhost:5181,http://127.0.0.1:5181
+      - key: RATE_LIMIT_PER_MINUTE
+        value: 45
+      - key: LEAD_POLICY_VERSION
+        value: v1.0
+      - key: IP_HASH_SALT
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+
+databases:
+  - name: paola-cortes-db
+    plan: basic_256mb
+    region: oregon
+    databaseName: paola_cortes
+    user: paola_cortes

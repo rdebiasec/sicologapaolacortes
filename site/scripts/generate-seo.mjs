@@ -52,9 +52,9 @@ const pages = [
   }
 ]
 
-function replaceOrInsert(html, regex, replacement) {
-  if (regex.test(html)) return html.replace(regex, replacement)
-  return html.replace('</head>', `    ${replacement}\n  </head>`)
+function upsertHeadTag(html, regex, replacement) {
+  const cleaned = html.replace(regex, '').replace(/\n{3,}/g, '\n\n')
+  return cleaned.replace('</head>', `    ${replacement}\n  </head>`)
 }
 
 async function patchHtmlSeo() {
@@ -64,36 +64,36 @@ async function patchHtmlSeo() {
     const canonical = pageUrl(page.path)
     const ogImage = assetUrl(OG_IMAGE)
 
-    html = replaceOrInsert(html, /<title>.*?<\/title>/s, `<title>${page.title}</title>`)
-    html = replaceOrInsert(
+    html = upsertHeadTag(html, /<title>[\s\S]*?<\/title>\s*/gi, `<title>${page.title}</title>`)
+    html = upsertHeadTag(
       html,
-      /<meta name="description" content="[^"]*" \/>/s,
+      /<meta\s+name="description"[\s\S]*?\/>\s*/gi,
       `<meta name="description" content="${page.description}" />`
     )
     if (page.includeOg) {
-      html = replaceOrInsert(
+      html = upsertHeadTag(
         html,
-        /<link rel="canonical" href="[^"]*" \/>/s,
+        /<link\s+rel="canonical"[\s\S]*?\/>\s*/gi,
         `<link rel="canonical" href="${canonical}" />`
       )
-      html = replaceOrInsert(
+      html = upsertHeadTag(
         html,
-        /<meta property="og:title" content="[^"]*" \/>/s,
+        /<meta\s+property="og:title"[\s\S]*?\/>\s*/gi,
         `<meta property="og:title" content="${page.title}" />`
       )
-      html = replaceOrInsert(
+      html = upsertHeadTag(
         html,
-        /<meta property="og:description" content="[^"]*" \/>/s,
+        /<meta\s+property="og:description"[\s\S]*?\/>\s*/gi,
         `<meta property="og:description" content="${page.description}" />`
       )
-      html = replaceOrInsert(
+      html = upsertHeadTag(
         html,
-        /<meta property="og:image" content="[^"]*" \/>/s,
+        /<meta\s+property="og:image"[\s\S]*?\/>\s*/gi,
         `<meta property="og:image" content="${ogImage}" />`
       )
-      html = replaceOrInsert(
+      html = upsertHeadTag(
         html,
-        /<meta property="og:url" content="[^"]*" \/>/s,
+        /<meta\s+property="og:url"[\s\S]*?\/>\s*/gi,
         `<meta property="og:url" content="${canonical}" />`
       )
     }
