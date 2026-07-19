@@ -1,4 +1,4 @@
-/** Business facts — leave PENDIENTE values unset; UI shows “próximamente”. */
+/** Business facts — keep pending fields empty; UI renders “próximamente”. */
 export const COMPANY_LEGAL_NAME = 'Psicóloga Paola Cortés'
 export const SITE_NAME_SHORT = 'Paola Cortés'
 export const SITE_TITLE =
@@ -6,23 +6,37 @@ export const SITE_TITLE =
 export const SITE_DESCRIPTION =
   'Terapia online en español con la psicóloga Paola Cortés. Acompañamiento individual, de pareja y familia desde Colombia, también si vives en el exterior.'
 
-/** [PENDIENTE-1] WhatsApp with country code, digits only (e.g. 57XXXXXXXXXX). Empty = próximamente */
-export const WHATSAPP_NUMBER = ''
+const viteEnv = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {}
+const nodeEnv = typeof process !== 'undefined' && process.env ? process.env : {}
+
+function normalizeUrl(input, fallbackProtocol = 'https') {
+  const raw = String(input || '').trim()
+  if (!raw) return ''
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `${fallbackProtocol}://${raw}`
+  return withProtocol.replace(/\/+$/, '')
+}
+
+/** [PENDIENTE-1] WhatsApp (57 + número). Empty = próximamente */
+const rawWhatsApp = String(viteEnv.VITE_WHATSAPP_NUMBER || nodeEnv.VITE_WHATSAPP_NUMBER || '')
+export const WHATSAPP_NUMBER = rawWhatsApp.replace(/\D/g, '')
 
 /** [PENDIENTE-10] Email — leave empty to hide */
-export const CONTACT_EMAIL = ''
+export const CONTACT_EMAIL = String(viteEnv.VITE_CONTACT_EMAIL || nodeEnv.VITE_CONTACT_EMAIL || '').trim()
 
 /** [PENDIENTE-11] */
-export const BUSINESS_HOURS = ''
+export const BUSINESS_HOURS = String(viteEnv.VITE_BUSINESS_HOURS || nodeEnv.VITE_BUSINESS_HOURS || '').trim()
 
-/** [PENDIENTE-12] Instagram handle without @ — leave empty for próximamente */
-export const INSTAGRAM_HANDLE = ''
+/** [PENDIENTE-12] Instagram handle without @ — empty = próximamente */
+export const INSTAGRAM_HANDLE = String(viteEnv.VITE_INSTAGRAM_HANDLE || nodeEnv.VITE_INSTAGRAM_HANDLE || '')
+  .trim()
+  .replace(/^@/, '')
 
-/** [PENDIENTE-13] */
-export const SITE_URL = 'https://example.com'
+/** [PENDIENTE-13] Public base URL used in canonical/OG/sitemap. */
+const configuredSiteUrl = normalizeUrl(viteEnv.VITE_SITE_URL || nodeEnv.VITE_SITE_URL)
+export const SITE_URL = configuredSiteUrl || 'http://localhost:5181'
 
 /** [PENDIENTE-14] GA4 ID (G-XXXXXXXXXX). Empty = analytics off */
-export const GA4_ID = ''
+export const GA4_ID = String(viteEnv.VITE_GA4_ID || nodeEnv.VITE_GA4_ID || '').trim()
 
 export const OG_IMAGE = 'og-image.svg'
 export const BUSINESS_LOCATION = 'Bogotá, Colombia'

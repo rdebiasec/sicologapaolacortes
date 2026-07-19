@@ -136,6 +136,12 @@ p {
   padding: 4.5rem 1.25rem;
 }
 
+/* Offset sticky header so section titles stay visible on anchor jump */
+section[id],
+#main-content {
+  scroll-margin-top: calc(var(--header-h) + 12px);
+}
+
 .section-alt {
   background: var(--support);
 }
