@@ -1,70 +1,143 @@
-import { API_BASE_URL, LEAD_POLICY_VERSION, apiUrl } from './legal/constants.js'
+import { LEAD_POLICY_VERSION } from './legal/constants.js'
 
-function getClientContext() {
-  return {
-    source: window.location.origin,
-    path: window.location.pathname + window.location.search,
-    referrer: document.referrer || '',
-    userAgent: navigator.userAgent || 'desconocido'
+const STORAGE_KEYS = {
+  whatsappEvents: 'pc_local_whatsapp_events_v1',
+  leadSubmissions: 'pc_local_leads_v1',
+  leadDraft: 'pc_local_lead_draft_v1'
+}
+
+const MAX_WHATSAPP_EVENTS = 120
+const MAX_LOCAL_LEADS = 40
+const LEAD_RETENTION_DAYS = 180
+
+function readJson(key, fallback) {
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (!raw) return fallback
+    return JSON.parse(raw)
+  } catch {
+    return fallback
   }
 }
 
-function postJson(path, payload, { useBeacon = false } = {}) {
-  const url = apiUrl(path)
-  if (!API_BASE_URL || !url) return Promise.resolve({ ok: false, skipped: true })
-
-  const body = JSON.stringify(payload)
-  if (useBeacon && typeof navigator.sendBeacon === 'function') {
-    const blob = new Blob([body], { type: 'application/json' })
-    const sent = navigator.sendBeacon(url, blob)
-    return Promise.resolve({ ok: sent, beacon: true })
+function writeJson(key, value) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+    return true
+  } catch {
+    return false
   }
+}
 
-  return fetch(url, {
-    method: 'POST',
-    mode: 'cors',
-    cache: 'no-store',
-    keepalive: true,
-    headers: { 'content-type': 'application/json' },
-    body
+function nowIso() {
+  return new Date().toISOString()
+}
+
+function futureIso(days) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toISOString()
+}
+
+function currentContext() {
+  return {
+    source: window.location.origin,
+    path: window.location.pathname + window.location.search,
+    referrer: document.referrer || ''
+  }
+}
+
+function normalizeList(value) {
+  return Array.isArray(value) ? value : []
+}
+
+function clearExpiredLeads() {
+  const now = Date.now()
+  const leads = normalizeList(readJson(STORAGE_KEYS.leadSubmissions, []))
+  const valid = leads.filter((item) => {
+    if (!item || !item.expiresAt) return false
+    const expiry = Date.parse(item.expiresAt)
+    return Number.isFinite(expiry) && expiry > now
   })
+  writeJson(STORAGE_KEYS.leadSubmissions, valid)
+  return valid
+}
+
+function localId(prefix = 'local') {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`
+  }
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`
 }
 
 export function persistWhatsAppClick({ boton }) {
   if (!boton) return
-  const payload = {
+  const events = normalizeList(readJson(STORAGE_KEYS.whatsappEvents, []))
+  const item = {
+    id: localId('wa'),
     eventName: 'click_whatsapp',
     boton,
-    happenedAt: new Date().toISOString(),
-    ...getClientContext()
+    happenedAt: nowIso(),
+    ...currentContext()
   }
-  postJson('/v1/events/whatsapp-click', payload, { useBeacon: true }).catch(() => {})
+  events.push(item)
+  writeJson(STORAGE_KEYS.whatsappEvents, events.slice(-MAX_WHATSAPP_EVENTS))
 }
 
-export async function persistLeadSubmission(input) {
+export function persistLeadSubmission(input) {
+  const leads = clearExpiredLeads()
   const payload = {
+    id: localId('lead'),
     name: input.name || null,
-    contactChannel: input.contactChannel,
-    contactValue: input.contactValue,
+    contactChannel: input.contactChannel || 'whatsapp',
+    contactValue: input.contactValue || '',
     interestChannel: input.interestChannel || 'general',
     messageShort: input.messageShort || null,
     consentGiven: true,
     policyVersion: LEAD_POLICY_VERSION || 'v1.0',
     consentText: input.consentText,
-    happenedAt: new Date().toISOString(),
-    ...getClientContext()
+    happenedAt: nowIso(),
+    expiresAt: futureIso(LEAD_RETENTION_DAYS),
+    ...currentContext()
   }
 
-  const response = await postJson('/v1/leads', payload)
-  if (!response || typeof response.ok !== 'boolean') {
-    throw new Error('No fue posible conectar con el API.')
-  }
-  if (!response.ok) {
-    throw new Error('No fue posible guardar tus datos de contacto.')
-  }
-  return response.json()
+  leads.push(payload)
+  const ok = writeJson(STORAGE_KEYS.leadSubmissions, leads.slice(-MAX_LOCAL_LEADS))
+  if (!ok) throw new Error('No fue posible guardar en el navegador.')
+  clearLeadDraft()
+  return { ok: true, leadId: payload.id }
 }
 
-export function apiPersistenceEnabled() {
-  return Boolean(API_BASE_URL)
+export function saveLeadDraft(draft) {
+  const payload = {
+    name: draft.name || '',
+    contactChannel: draft.contactChannel || 'whatsapp',
+    contactValue: draft.contactValue || '',
+    interestChannel: draft.interestChannel || 'general',
+    messageShort: draft.messageShort || '',
+    updatedAt: nowIso()
+  }
+  writeJson(STORAGE_KEYS.leadDraft, payload)
+}
+
+export function readLeadDraft() {
+  const draft = readJson(STORAGE_KEYS.leadDraft, null)
+  return draft && typeof draft === 'object' ? draft : null
+}
+
+export function clearLeadDraft() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEYS.leadDraft)
+  } catch {
+    // noop
+  }
+}
+
+export function clearLocalLeadData() {
+  clearLeadDraft()
+  try {
+    window.localStorage.removeItem(STORAGE_KEYS.leadSubmissions)
+  } catch {
+    // noop
+  }
 }

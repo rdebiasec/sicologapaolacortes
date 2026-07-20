@@ -38,10 +38,7 @@ export const SITE_URL = configuredSiteUrl || 'http://localhost:5181'
 /** [PENDIENTE-14] GA4 ID (G-XXXXXXXXXX). Empty = analytics off */
 export const GA4_ID = String(viteEnv.VITE_GA4_ID || nodeEnv.VITE_GA4_ID || '').trim()
 
-/** API endpoint for event/lead persistence. Empty = API integration off. */
-export const API_BASE_URL = normalizeUrl(viteEnv.VITE_API_BASE_URL || nodeEnv.VITE_API_BASE_URL)
-
-/** Public version string stored with user consent records. */
+/** Public version string for local consent records. */
 export const LEAD_POLICY_VERSION = String(
   viteEnv.VITE_LEAD_POLICY_VERSION || nodeEnv.VITE_LEAD_POLICY_VERSION || 'v1.0'
 ).trim()
@@ -63,12 +60,6 @@ export function href(path) {
 export function absoluteUrl(path = '') {
   const relative = href(path).replace(/^\//, '')
   return relative ? `${SITE_URL}/${relative}` : SITE_URL
-}
-
-export function apiUrl(path = '') {
-  if (!API_BASE_URL) return ''
-  const clean = String(path || '').startsWith('/') ? path : `/${path}`
-  return `${API_BASE_URL}${clean}`
 }
 
 export function instagramUrl() {

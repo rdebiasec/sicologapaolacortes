@@ -7,7 +7,6 @@ import {
   CONTACT_EMAIL,
   BUSINESS_HOURS,
   SITE_URL,
-  API_BASE_URL,
   LEAD_POLICY_VERSION,
   OG_IMAGE,
   BUSINESS_LOCATION,
@@ -26,7 +25,12 @@ import {
 import { escapeHtml } from './security/html.js'
 import { initAnalytics } from './analytics.js'
 import { renderWhatsAppButton, bindWhatsAppTracking } from './whatsapp.js'
-import { persistLeadSubmission } from './persistence.js'
+import {
+  persistLeadSubmission,
+  saveLeadDraft,
+  readLeadDraft,
+  clearLocalLeadData
+} from './persistence.js'
 
 function pending(label = 'próximamente') {
   return `<span class="pending-inline">${escapeHtml(label)}</span>`
@@ -355,24 +359,15 @@ function renderContact() {
 }
 
 function renderLeadForm() {
-  if (!API_BASE_URL) {
-    return `
-      <div class="lead-form-panel is-pending">
-        <h3>Formulario de contacto</h3>
-        <p>Esta opción se está activando para guardar solicitudes con consentimiento explícito.</p>
-        <p class="pending-note">próximamente</p>
-      </div>
-    `
-  }
-
   const consentText =
     'Autorizo el tratamiento de mis datos de contacto para responder mi solicitud, conforme a la Ley 1581 de 2012.'
 
   return `
     <form class="lead-form-panel lead-form" data-lead-form novalidate>
-      <h3>También puedes dejar tus datos aquí</h3>
+      <h3>Guardar borrador local de contacto</h3>
       <p class="lead-form-disclaimer">
-        Este formulario es solo para contacto inicial. No incluyas detalles clínicos sensibles.
+        Este formulario guarda la información solo en este navegador para que no pierdas tu borrador.
+        Para recibir respuesta, escríbeme por WhatsApp o correo. No incluyas detalles clínicos sensibles.
       </p>
       <div class="lead-grid">
         <label>
@@ -418,7 +413,10 @@ function renderLeadForm() {
       </label>
       <input type="hidden" name="consentText" value="${escapeHtml(consentText)}" />
       <input type="hidden" name="policyVersion" value="${escapeHtml(LEAD_POLICY_VERSION || 'v1.0')}" />
-      <button class="btn btn-outline" type="submit">Enviar solicitud</button>
+      <div class="section-actions">
+        <button class="btn btn-outline" type="submit">Guardar en este dispositivo</button>
+        <button class="btn-link" type="button" data-clear-local-data>Limpiar datos locales</button>
+      </div>
       <p class="lead-form-status" data-lead-status role="status" aria-live="polite"></p>
     </form>
   `
@@ -465,25 +463,25 @@ function renderPrivacyContent() {
         <h2>Datos que podemos tratar</h2>
         <p>
           Si nos contactas por WhatsApp, correo u otros canales que indiquemos en este sitio,
-          podemos recibir datos de identificación y contacto (nombre, número telefónico, correo),
-          canal de interés y mensaje breve para responder la solicitud o agendar una sesión.
+          podemos recibir datos de identificación y contacto (nombre, número telefónico, correo) para
+          responder solicitudes o coordinar agendamiento. En el formulario web actual, la información
+          queda guardada únicamente en tu navegador (almacenamiento local) hasta que la elimines o venza.
           Te pedimos no incluir información clínica sensible en el formulario web.
         </p>
         <h2>Finalidad</h2>
         <p>
-          Responder solicitudes de contacto, orientar sobre los servicios de terapia online
-          y coordinar el agendamiento de citas.
+          Facilitar el contacto inicial, orientar sobre los servicios de terapia online
+          y conservar temporalmente borradores locales para mejorar la experiencia de uso.
         </p>
         <h2>Consentimiento explícito</h2>
         <p>
-          Antes de guardar una solicitud en base de datos, solicitamos autorización explícita
-          y registramos versión de política, fecha, huella técnica de origen e información mínima
-          necesaria para trazabilidad y seguridad.
+          Antes de guardar datos en tu navegador, solicitamos autorización explícita
+          y registramos localmente versión de política y fecha del consentimiento.
         </p>
         <h2>Retención y eliminación</h2>
         <p>
-          Los datos de contacto se conservan hasta por 180 días o menos si solicitas su eliminación.
-          Puedes ejercer tus derechos de consulta, actualización, rectificación o supresión en cualquier momento.
+          Los borradores locales se conservan hasta por 180 días y puedes eliminarlos en cualquier momento
+          desde el botón “Limpiar datos locales” o borrando datos del navegador.
         </p>
         <h2>Derechos del titular</h2>
         <p>
@@ -583,11 +581,38 @@ function bindLeadForm() {
 
   const status = form.querySelector('[data-lead-status]')
   const submit = form.querySelector('button[type="submit"]')
+  const clearBtn = form.querySelector('[data-clear-local-data]')
   const setStatus = (message, tone = 'info') => {
     if (!status) return
     status.textContent = message
     status.dataset.tone = tone
   }
+
+  const draft = readLeadDraft()
+  if (draft) {
+    const setValue = (name, value) => {
+      const field = form.elements.namedItem(name)
+      if (!field) return
+      field.value = value
+    }
+    setValue('name', draft.name || '')
+    setValue('contactChannel', draft.contactChannel || 'whatsapp')
+    setValue('contactValue', draft.contactValue || '')
+    setValue('interestChannel', draft.interestChannel || 'general')
+    setValue('messageShort', draft.messageShort || '')
+    setStatus('Recuperamos tu borrador guardado en este navegador.', 'info')
+  }
+
+  form.addEventListener('input', () => {
+    const fields = new FormData(form)
+    saveLeadDraft({
+      name: String(fields.get('name') || '').trim(),
+      contactChannel: String(fields.get('contactChannel') || 'whatsapp'),
+      contactValue: String(fields.get('contactValue') || '').trim(),
+      interestChannel: String(fields.get('interestChannel') || 'general'),
+      messageShort: String(fields.get('messageShort') || '').trim()
+    })
+  })
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
@@ -606,7 +631,7 @@ function bindLeadForm() {
     }
 
     submit?.setAttribute('disabled', 'disabled')
-    setStatus('Enviando tu solicitud...', 'info')
+    setStatus('Guardando en este navegador...', 'info')
 
     try {
       await persistLeadSubmission({
@@ -618,12 +643,18 @@ function bindLeadForm() {
         consentText: String(fields.get('consentText') || '').trim()
       })
       form.reset()
-      setStatus('Gracias. Tu solicitud fue enviada y te responderé pronto.', 'success')
+      setStatus('Guardado localmente. Para recibir respuesta, escríbeme por WhatsApp o correo.', 'success')
     } catch (error) {
-      setStatus('No fue posible enviar el formulario. Intenta por WhatsApp mientras lo revisamos.', 'error')
+      setStatus('No fue posible guardar localmente. Revisa permisos del navegador.', 'error')
     } finally {
       submit?.removeAttribute('disabled')
     }
+  })
+
+  clearBtn?.addEventListener('click', () => {
+    clearLocalLeadData()
+    form.reset()
+    setStatus('Se eliminaron los datos guardados en este navegador.', 'success')
   })
 }
 
