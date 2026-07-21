@@ -10,6 +10,9 @@ import {
   LEAD_POLICY_VERSION,
   OG_IMAGE,
   BUSINESS_LOCATION,
+  PROFESSIONAL_CREDENTIAL,
+  PROFESSIONAL_EXPERIENCE,
+  PROFESSIONAL_LICENSE,
   href,
   absoluteUrl,
   instagramUrl
@@ -24,17 +27,13 @@ import {
 } from './content/site-content.js'
 import { escapeHtml } from './security/html.js'
 import { initAnalytics } from './analytics.js'
-import { renderWhatsAppButton, bindWhatsAppTracking } from './whatsapp.js'
+import { renderWhatsAppButton, bindWhatsAppTracking, isWhatsAppReady } from './whatsapp.js'
 import {
   persistLeadSubmission,
   saveLeadDraft,
   readLeadDraft,
   clearLocalLeadData
 } from './persistence.js'
-
-function pending(label = 'próximamente') {
-  return `<span class="pending-inline">${escapeHtml(label)}</span>`
-}
 
 function setMeta({ title, description, path = '' }) {
   document.title = title
@@ -78,9 +77,9 @@ function injectSchema() {
 
 function photoPlaceholder(size = 'lg') {
   return `
-    <div class="photo-placeholder photo-placeholder-${size}" role="img" aria-label="Foto de Paola Cortés — próximamente">
+    <div class="photo-placeholder photo-placeholder-${size}" role="img" aria-label="Identidad visual de Paola Cortés">
       <span class="photo-initials">PC</span>
-      <span class="pending-note">próximamente</span>
+      <span class="photo-subtitle">Psicóloga</span>
     </div>
   `
 }
@@ -154,6 +153,10 @@ function renderHero() {
 }
 
 function renderAbout() {
+  const trustLine = PROFESSIONAL_LICENSE
+    ? `Tarjeta profesional No. ${escapeHtml(PROFESSIONAL_LICENSE)}`
+    : 'Credenciales profesionales disponibles para verificación al momento de agendar.'
+
   return `
     <section id="sobre-mi" class="section section-alt">
       <div class="section-inner about-grid">
@@ -163,8 +166,8 @@ function renderAbout() {
         <div class="about-copy">
           <h2>Hola, soy Paola.</h2>
           <p>
-            Soy psicóloga ${pending('universidad y título — próximamente')} con
-            ${pending('años de experiencia — próximamente')} de experiencia acompañando a adolescentes,
+            Soy psicóloga ${escapeHtml(PROFESSIONAL_CREDENTIAL)} con
+            ${escapeHtml(PROFESSIONAL_EXPERIENCE)} de experiencia profesional acompañando a adolescentes,
             adultos, parejas y familias. Trabajo desde la psicología humanista y el enfoque cognitivo-conductual:
             esto significa que en consulta encontrarás un espacio cálido y sin juicios, junto con herramientas
             prácticas para los retos que estás viviendo.
@@ -174,7 +177,7 @@ function renderAbout() {
             relaciones de pareja y dinámicas familiares. Creo profundamente que pedir ayuda no es debilidad:
             es el primer paso para estar mejor.
           </p>
-          <p class="trust-line">Tarjeta profesional No. ${pending('próximamente')}</p>
+          <p class="trust-line">${trustLine}</p>
         </div>
       </div>
     </section>
@@ -221,8 +224,8 @@ function renderServices() {
         <h2>¿En qué te puedo acompañar?</h2>
         <div class="services-grid">${cards}</div>
         <p class="section-close">
-          Todas las sesiones son online, por videollamada.
-          ${pending('presencial — próximamente')}
+          Todas las sesiones son online, por videollamada. Esta modalidad me permite acompañarte con
+          continuidad, estés en Colombia o en el exterior.
         </p>
       </div>
     </section>
@@ -273,7 +276,7 @@ function renderFaq() {
     .map((item, i) => {
       const answer = item.a
         ? escapeHtml(item.a)
-        : `<span class="pending-inline">próximamente</span>`
+        : 'Te respondo esta pregunta personalmente al momento de agendar, según tu caso.'
       return `
         <div class="faq-item">
           <button type="button" class="faq-trigger" aria-expanded="${i === 0 ? 'true' : 'false'}" aria-controls="faq-panel-${i}" id="faq-btn-${i}">
@@ -328,13 +331,18 @@ function renderContact() {
   const ig = instagramUrl()
   const emailBlock = CONTACT_EMAIL
     ? `<p><a href="mailto:${escapeHtml(CONTACT_EMAIL)}">${escapeHtml(CONTACT_EMAIL)}</a></p>`
-    : `<p>Correo: ${pending()}</p>`
+    : ''
   const hoursBlock = BUSINESS_HOURS
     ? `<p>Horarios: ${escapeHtml(BUSINESS_HOURS)}</p>`
-    : `<p>Horarios de atención: ${pending()}</p>`
+    : ''
   const igBlock = ig
     ? `<p><a href="${escapeHtml(ig)}" target="_blank" rel="noopener noreferrer">Instagram @${escapeHtml(ig.split('/').filter(Boolean).pop())}</a></p>`
-    : `<p>Instagram: ${pending()}</p>`
+    : ''
+  const hasDirectChannels = Boolean(CONTACT_EMAIL || ig || isWhatsAppReady())
+  const fallbackMeta = hasDirectChannels
+    ? ''
+    : '<p>Canales directos de contacto en actualización temporal.</p>'
+  const contactMeta = [emailBlock, hoursBlock, igBlock, fallbackMeta].filter(Boolean).join('')
 
   const leadForm = renderLeadForm()
 
@@ -348,9 +356,7 @@ function renderContact() {
         </div>
         ${leadForm}
         <div class="contact-meta">
-          ${emailBlock}
-          ${hoursBlock}
-          ${igBlock}
+          ${contactMeta}
           <p class="contact-location">${escapeHtml(BUSINESS_LOCATION)} · Atención online</p>
         </div>
       </div>
@@ -364,10 +370,10 @@ function renderLeadForm() {
 
   return `
     <form class="lead-form-panel lead-form" data-lead-form novalidate>
-      <h3>Guardar borrador local de contacto</h3>
+      <h3>Guardar datos de contacto en este dispositivo (opcional)</h3>
       <p class="lead-form-disclaimer">
         Este formulario guarda la información solo en este navegador para que no pierdas tu borrador.
-        Para recibir respuesta, escríbeme por WhatsApp o correo. No incluyas detalles clínicos sensibles.
+        Para recibir respuesta, escríbeme por WhatsApp o correo. Te recomiendo no incluir detalles clínicos sensibles.
       </p>
       <div class="lead-grid">
         <label>
@@ -407,7 +413,7 @@ function renderLeadForm() {
       <label class="consent-check">
         <input type="checkbox" name="consentGiven" required />
         <span>
-          Acepto el tratamiento de mis datos de contacto para que me respondan esta solicitud.
+          Acepto el tratamiento de mis datos de contacto para que me respondas esta solicitud.
           Leí la <a href="${escapeHtml(href('privacidad/'))}" target="_blank" rel="noopener noreferrer">política de privacidad</a>.
         </span>
       </label>
@@ -435,7 +441,7 @@ function renderFooter() {
           ${links}
           <a href="${escapeHtml(href('privacidad/'))}">Política de privacidad</a>
         </nav>
-        <p class="footer-copy">© 2026 · Sitio desarrollado por DBX Solutions</p>
+        <p class="footer-copy">© 2026 · ${escapeHtml(COMPANY_LEGAL_NAME)}.</p>
       </div>
     </footer>
   `
@@ -449,10 +455,14 @@ function renderFloating() {
 }
 
 function renderPrivacyContent() {
+  const privacyContactChannel = CONTACT_EMAIL
+    ? `<a href="mailto:${escapeHtml(CONTACT_EMAIL)}">${escapeHtml(CONTACT_EMAIL)}</a>`
+    : 'los canales directos de contacto publicados en este sitio'
+
   return `
     <section class="section privacy-page">
       <div class="section-inner narrow">
-        <p class="privacy-banner">Documento base — pendiente de revisión final.</p>
+        <p class="privacy-banner">Versión de política: ${escapeHtml(LEAD_POLICY_VERSION || 'v1.0')}</p>
         <h1>Política de privacidad</h1>
         <p>Responsable del tratamiento: <strong>${escapeHtml(COMPANY_LEGAL_NAME)}</strong>, ${escapeHtml(BUSINESS_LOCATION)}.</p>
         <h2>Marco legal</h2>
@@ -460,13 +470,13 @@ function renderPrivacyContent() {
           Esta política se elabora conforme a la Ley 1581 de 2012 de la República de Colombia
           y sus normas reglamentarias, relativas a la protección de datos personales.
         </p>
-        <h2>Datos que podemos tratar</h2>
+        <h2>Datos que puedo tratar</h2>
         <p>
-          Si nos contactas por WhatsApp, correo u otros canales que indiquemos en este sitio,
-          podemos recibir datos de identificación y contacto (nombre, número telefónico, correo) para
+          Si me contactas por WhatsApp, correo u otros canales indicados en este sitio,
+          puedo recibir datos de identificación y contacto (nombre, número telefónico, correo) para
           responder solicitudes o coordinar agendamiento. En el formulario web actual, la información
           queda guardada únicamente en tu navegador (almacenamiento local) hasta que la elimines o venza.
-          Te pedimos no incluir información clínica sensible en el formulario web.
+          Te recomiendo no incluir información clínica sensible en el formulario web.
         </p>
         <h2>Finalidad</h2>
         <p>
@@ -475,8 +485,8 @@ function renderPrivacyContent() {
         </p>
         <h2>Consentimiento explícito</h2>
         <p>
-          Antes de guardar datos en tu navegador, solicitamos autorización explícita
-          y registramos localmente versión de política y fecha del consentimiento.
+          Antes de guardar datos en tu navegador, te solicito autorización explícita
+          y registro localmente versión de política y fecha del consentimiento.
         </p>
         <h2>Retención y eliminación</h2>
         <p>
@@ -490,8 +500,8 @@ function renderPrivacyContent() {
         </p>
         <h2>Canal de contacto</h2>
         <p>
-          Para ejercer tus derechos o consultar sobre el tratamiento de datos:
-          ${CONTACT_EMAIL ? `<a href="mailto:${escapeHtml(CONTACT_EMAIL)}">${escapeHtml(CONTACT_EMAIL)}</a>` : pending('correo — próximamente')}.
+          Para ejercer tus derechos o consultar sobre el tratamiento de datos, puedes escribirme por
+          ${privacyContactChannel}.
         </p>
         <p><a class="btn-link" href="${escapeHtml(href(''))}">← Volver al inicio</a></p>
       </div>

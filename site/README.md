@@ -16,10 +16,11 @@ Abre **http://localhost:5181/**
 
 Configura en variables de entorno (ver `.env.example`) o en `src/legal/constants.js`:
 - WhatsApp, correo, horarios, Instagram, GA4
+- Credenciales profesionales públicas (formación, experiencia y tarjeta profesional)
 - `VITE_SITE_URL` para canonical/OG/sitemap
 - `VITE_LEAD_POLICY_VERSION` para versionar consentimiento local
 
-Mientras estén vacíos, la UI muestra **próximamente**.
+Si faltan datos opcionales, la UI oculta esos campos o redirige al bloque de contacto.
 
 ## Estructura
 

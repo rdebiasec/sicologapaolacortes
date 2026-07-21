@@ -4,6 +4,23 @@ import { defineConfig, loadEnv } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+function allowInlineStylesInDevCsp() {
+  return {
+    name: 'allow-inline-styles-in-dev-csp',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      const cspPattern = /<meta\s+http-equiv="Content-Security-Policy"[^>]*>/i
+      if (!cspPattern.test(html)) return html
+      return html.replace(cspPattern, (tag) =>
+        tag.replace(
+          "style-src 'self' https://fonts.googleapis.com;",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+        )
+      )
+    }
+  }
+}
+
 const normalizeBase = (value) => {
   if (!value || value === '/') return '/'
   const withLeading = value.startsWith('/') ? value : `/${value}`
@@ -15,6 +32,7 @@ export default defineConfig(({ mode }) => {
   const base = normalizeBase(env.VITE_BASE_PATH)
 
   return {
+    plugins: [allowInlineStylesInDevCsp()],
     base,
     build: {
       rollupOptions: {

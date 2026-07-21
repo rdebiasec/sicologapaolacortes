@@ -5,6 +5,7 @@
   --support: #dce7e1;
   --support-strong: #87a79a;
   --accent: #d9a441;
+  --focus: rgba(217, 164, 65, 0.35);
   --text: #22303a;
   --text-secondary: #5a6b75;
   --card: #ffffff;
@@ -173,25 +174,6 @@ section[id],
   align-items: center;
 }
 
-.pending-inline,
-.pending-note {
-  color: var(--text-secondary);
-  font-style: italic;
-  font-size: 0.95em;
-}
-
-.pending-note {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.85rem;
-}
-
-.wa-pending-wrap {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
 /* Header */
 .site-header {
   position: sticky;
@@ -311,7 +293,6 @@ section[id],
   }
 
   #primary-nav a,
-  #primary-nav .wa-pending-wrap,
   #primary-nav .btn {
     width: 100%;
     text-align: left;
@@ -365,7 +346,6 @@ section[id],
   color: #fff;
 }
 
-.btn.is-pending,
 .btn:disabled {
   opacity: 0.72;
   cursor: not-allowed;
@@ -498,6 +478,15 @@ section[id],
   font-weight: 500;
   color: var(--primary);
   letter-spacing: 0.04em;
+}
+
+.photo-subtitle {
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .trust-line {
@@ -712,11 +701,6 @@ section[id],
   padding: 1.25rem;
 }
 
-.lead-form-panel.is-pending {
-  background: #f5f6f2;
-  border: 1px dashed rgba(30, 78, 85, 0.35);
-}
-
 .lead-form-panel h3 {
   margin: 0 0 0.45rem;
 }
@@ -875,18 +859,6 @@ section[id],
 .whatsapp-float:hover {
   color: #fff;
   filter: brightness(1.05);
-}
-
-.whatsapp-float.is-pending {
-  background: #9bb0a3;
-  box-shadow: none;
-  width: auto;
-  height: auto;
-  padding: 0.65rem 0.9rem;
-  border-radius: 999px;
-  gap: 0.4rem;
-  display: inline-flex;
-  align-items: center;
 }
 
 .whatsapp-float-label {

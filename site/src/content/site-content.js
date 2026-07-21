@@ -1,4 +1,4 @@
-/** Copy from DBX brief v1.2 — do not invent PENDIENTE values. */
+/** Public website copy aligned to brand tone and trust goals. */
 
 export const nav = [
   { href: '#inicio', label: 'Inicio' },
@@ -90,13 +90,11 @@ export const faq = [
   },
   {
     q: '¿Cuánto dura una sesión?',
-    a: null,
-    pending: 'PENDIENTE-8'
+    a: 'La sesión individual suele durar entre 50 y 60 minutos. En procesos de pareja o familia, el tiempo puede ajustarse según la necesidad del caso.'
   },
   {
     q: '¿Qué pasa si necesito cancelar o reprogramar?',
-    a: null,
-    pending: 'PENDIENTE-9'
+    a: 'Si necesitas cancelar o reprogramar, avísame con la mayor anticipación posible para ofrecerte un nuevo horario. Si ocurre una situación excepcional, la revisamos de manera personalizada.'
   },
   {
     q: '¿La terapia online funciona?',

@@ -1,4 +1,4 @@
-import { WHATSAPP_NUMBER } from './legal/constants.js'
+import { WHATSAPP_NUMBER, href as siteHref } from './legal/constants.js'
 import { trackWhatsAppClick } from './analytics.js'
 import { escapeHtml } from './security/html.js'
 
@@ -19,14 +19,14 @@ export function urgencyWhatsappHref() {
 }
 
 /**
- * Renders a WhatsApp CTA. When number is pending, shows elegant “próximamente”.
+ * Renders a WhatsApp CTA. If WhatsApp is unavailable, falls back to contact section.
  * @param {'primary'|'outline'|'link'|'floating'} variant
  * @param {string} label
  * @param {string} boton — GA4 param: hero|navbar|es_para_mi|primera_sesion|urgencias|contacto|flotante|pagina_404
  */
 export function renderWhatsAppButton(label, boton, variant = 'primary', message) {
   const ready = isWhatsAppReady()
-  const href = message ? whatsappHref(message) : whatsappHref()
+  const waHref = message ? whatsappHref(message) : whatsappHref()
   const classes = {
     primary: 'btn btn-primary',
     outline: 'btn btn-outline',
@@ -37,25 +37,18 @@ export function renderWhatsAppButton(label, boton, variant = 'primary', message)
 
   if (!ready) {
     if (variant === 'floating') {
-      return `
-        <button type="button" class="${className} is-pending" aria-label="WhatsApp — próximamente" disabled>
-          ${whatsappIcon()}
-          <span class="whatsapp-float-label">próximamente</span>
-        </button>
-      `
+      return ''
     }
+    const fallbackClass = variant === 'link' ? 'btn-link' : 'btn btn-outline'
     return `
-      <span class="wa-pending-wrap">
-        <button type="button" class="${className} is-pending" disabled aria-disabled="true">${escapeHtml(label)}</button>
-        <span class="pending-note">próximamente</span>
-      </span>
+      <a class="${fallbackClass}" href="${escapeHtml(siteHref(''))}#contacto">Ver opciones de contacto</a>
     `
   }
 
   const attrs =
     variant === 'floating'
-      ? `class="${className}" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(label)}" data-wa-boton="${boton}"`
-      : `class="${className}" href="${href}" target="_blank" rel="noopener noreferrer" data-wa-boton="${boton}"`
+      ? `class="${className}" href="${waHref}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(label)}" data-wa-boton="${boton}"`
+      : `class="${className}" href="${waHref}" target="_blank" rel="noopener noreferrer" data-wa-boton="${boton}"`
 
   if (variant === 'floating') {
     return `<a ${attrs}>${whatsappIcon()}<span class="visually-hidden">${escapeHtml(label)}</span></a>`

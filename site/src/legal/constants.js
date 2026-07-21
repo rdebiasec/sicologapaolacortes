@@ -1,4 +1,4 @@
-/** Business facts — keep pending fields empty; UI renders “próximamente”. */
+/** Business facts for the public website. */
 export const COMPANY_LEGAL_NAME = 'Psicóloga Paola Cortés'
 export const SITE_NAME_SHORT = 'Paola Cortés'
 export const SITE_TITLE =
@@ -16,27 +16,43 @@ function normalizeUrl(input, fallbackProtocol = 'https') {
   return withProtocol.replace(/\/+$/, '')
 }
 
-/** [PENDIENTE-1] WhatsApp (57 + número). Empty = próximamente */
+/** WhatsApp in E.164 without + (example: 573001234567). */
 const rawWhatsApp = String(viteEnv.VITE_WHATSAPP_NUMBER || nodeEnv.VITE_WHATSAPP_NUMBER || '')
 export const WHATSAPP_NUMBER = rawWhatsApp.replace(/\D/g, '')
 
-/** [PENDIENTE-10] Email — leave empty to hide */
+/** Public contact email. Leave empty to hide. */
 export const CONTACT_EMAIL = String(viteEnv.VITE_CONTACT_EMAIL || nodeEnv.VITE_CONTACT_EMAIL || '').trim()
 
-/** [PENDIENTE-11] */
+/** Human-friendly business hours text. */
 export const BUSINESS_HOURS = String(viteEnv.VITE_BUSINESS_HOURS || nodeEnv.VITE_BUSINESS_HOURS || '').trim()
 
-/** [PENDIENTE-12] Instagram handle without @ — empty = próximamente */
+/** Instagram handle without @. Leave empty to hide. */
 export const INSTAGRAM_HANDLE = String(viteEnv.VITE_INSTAGRAM_HANDLE || nodeEnv.VITE_INSTAGRAM_HANDLE || '')
   .trim()
   .replace(/^@/, '')
 
-/** [PENDIENTE-13] Public base URL used in canonical/OG/sitemap. */
+/** Public base URL used in canonical/OG/sitemap. */
 const configuredSiteUrl = normalizeUrl(viteEnv.VITE_SITE_URL || nodeEnv.VITE_SITE_URL)
 export const SITE_URL = configuredSiteUrl || 'http://localhost:5181'
 
-/** [PENDIENTE-14] GA4 ID (G-XXXXXXXXXX). Empty = analytics off */
+/** GA4 measurement ID (G-XXXXXXXXXX). Leave empty to disable analytics. */
 export const GA4_ID = String(viteEnv.VITE_GA4_ID || nodeEnv.VITE_GA4_ID || '').trim()
+
+/** Professional profile data shown in the "Sobre mí" section. */
+export const PROFESSIONAL_CREDENTIAL = String(
+  viteEnv.VITE_PROFESSIONAL_CREDENTIAL ||
+    nodeEnv.VITE_PROFESSIONAL_CREDENTIAL ||
+    'egresada de la Universidad del Norte'
+).trim()
+
+export const PROFESSIONAL_EXPERIENCE = String(
+  viteEnv.VITE_PROFESSIONAL_EXPERIENCE || nodeEnv.VITE_PROFESSIONAL_EXPERIENCE || 'más de 20 años'
+).trim()
+
+/** Optional: professional license number shown publicly when available. */
+export const PROFESSIONAL_LICENSE = String(
+  viteEnv.VITE_PROFESSIONAL_LICENSE || nodeEnv.VITE_PROFESSIONAL_LICENSE || ''
+).trim()
 
 /** Public version string for local consent records. */
 export const LEAD_POLICY_VERSION = String(
