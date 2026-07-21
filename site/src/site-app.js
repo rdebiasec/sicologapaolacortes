@@ -455,53 +455,96 @@ function renderFloating() {
 }
 
 function renderPrivacyContent() {
+  const siteContactLink = `<a href="${escapeHtml(href(''))}#contacto">los canales de contacto publicados en este sitio</a>`
   const privacyContactChannel = CONTACT_EMAIL
     ? `<a href="mailto:${escapeHtml(CONTACT_EMAIL)}">${escapeHtml(CONTACT_EMAIL)}</a>`
-    : 'los canales directos de contacto publicados en este sitio'
+    : siteContactLink
 
   return `
     <section class="section privacy-page">
       <div class="section-inner narrow">
         <p class="privacy-banner">Versión de política: ${escapeHtml(LEAD_POLICY_VERSION || 'v1.0')}</p>
         <h1>Política de privacidad</h1>
-        <p>Responsable del tratamiento: <strong>${escapeHtml(COMPANY_LEGAL_NAME)}</strong>, ${escapeHtml(BUSINESS_LOCATION)}.</p>
-        <h2>Marco legal</h2>
         <p>
-          Esta política se elabora conforme a la Ley 1581 de 2012 de la República de Colombia
-          y sus normas reglamentarias, relativas a la protección de datos personales.
+          Esta política explica cómo trato los datos personales que compartes al usar este sitio web y los
+          canales de contacto asociados.
         </p>
-        <h2>Datos que puedo tratar</h2>
+        <h2>1. Responsable del tratamiento</h2>
         <p>
-          Si me contactas por WhatsApp, correo u otros canales indicados en este sitio,
-          puedo recibir datos de identificación y contacto (nombre, número telefónico, correo) para
-          responder solicitudes o coordinar agendamiento. En el formulario web actual, la información
-          queda guardada únicamente en tu navegador (almacenamiento local) hasta que la elimines o venza.
-          Te recomiendo no incluir información clínica sensible en el formulario web.
+          Responsable: <strong>${escapeHtml(COMPANY_LEGAL_NAME)}</strong>, ${escapeHtml(BUSINESS_LOCATION)}.
+          Canal para asuntos de privacidad y habeas data: ${privacyContactChannel}.
         </p>
-        <h2>Finalidad</h2>
+        <h2>2. Marco legal aplicable</h2>
         <p>
-          Facilitar el contacto inicial, orientar sobre los servicios de terapia online
-          y conservar temporalmente borradores locales para mejorar la experiencia de uso.
+          Esta política se elabora conforme a la Ley 1581 de 2012, el Decreto 1377 de 2013, el Decreto 1074
+          de 2015 y demás normas colombianas aplicables en protección de datos personales. En el contexto
+          terapéutico, también se atienden los deberes de confidencialidad y secreto profesional propios del
+          ejercicio de la psicología.
         </p>
-        <h2>Consentimiento explícito</h2>
+        <h2>3. Alcance y categorías de datos</h2>
         <p>
-          Antes de guardar datos en tu navegador, te solicito autorización explícita
-          y registro localmente versión de política y fecha del consentimiento.
+          Puedo tratar datos de contacto e identificación básica para el primer acercamiento, como nombre,
+          teléfono, correo, canal preferido y mensaje breve. En este sitio no se solicita ni se requiere
+          información clínica sensible para iniciar contacto.
         </p>
-        <h2>Retención y eliminación</h2>
         <p>
-          Los borradores locales se conservan hasta por 180 días y puedes eliminarlos en cualquier momento
-          desde el botón “Limpiar datos locales” o borrando datos del navegador.
+          El formulario web guarda borradores localmente en tu dispositivo (almacenamiento local) para evitar
+          pérdida de información durante el diligenciamiento.
         </p>
-        <h2>Derechos del titular</h2>
+        <h2>4. Finalidades y base jurídica</h2>
         <p>
-          Puedes conocer, actualizar, rectificar y solicitar la eliminación de tus datos,
-          así como revocar la autorización cuando aplique, de acuerdo con la Ley 1581 de 2012.
+          Trato los datos para responder solicitudes, orientar sobre servicios, coordinar agenda, mantener
+          trazabilidad básica de autorizaciones y cumplir obligaciones legales de protección de datos.
+          La base jurídica puede incluir consentimiento del titular, ejecución de medidas precontractuales y
+          cumplimiento de deberes legales.
         </p>
-        <h2>Canal de contacto</h2>
+        <h2>5. Encargados, terceros y transferencias</h2>
         <p>
-          Para ejercer tus derechos o consultar sobre el tratamiento de datos, puedes escribirme por
-          ${privacyContactChannel}.
+          Para operar este sitio puedo apoyarme en proveedores tecnológicos (por ejemplo, hosting, correo o
+          herramientas de analítica y seguridad) bajo deberes de confidencialidad y seguridad. Algunos
+          proveedores pueden procesar datos fuera de Colombia; cuando aplique, se implementan medidas
+          contractuales y de protección razonables conforme a la normativa vigente.
+        </p>
+        <h2>6. Medidas de seguridad</h2>
+        <p>
+          Se aplican medidas técnicas, humanas y administrativas razonables para prevenir acceso no autorizado,
+          pérdida, uso indebido o alteración de la información, con principios de minimización y acceso
+          restringido según necesidad.
+        </p>
+        <h2>7. Conservación y eliminación</h2>
+        <p>
+          Los borradores locales del formulario se conservan hasta por 180 días y puedes eliminarlos en
+          cualquier momento desde el botón “Limpiar datos locales” o borrando datos del navegador.
+        </p>
+        <p>
+          La información recibida por canales de contacto se conserva solo por el tiempo necesario para atender
+          tu solicitud y para el cumplimiento de obligaciones legales o de soporte del servicio.
+        </p>
+        <h2>8. Derechos del titular y procedimiento</h2>
+        <p>
+          Puedes conocer, actualizar, rectificar, solicitar supresión de tus datos y revocar la autorización
+          cuando proceda. Para ejercer estos derechos, envía tu solicitud por ${privacyContactChannel} e
+          incluye nombre completo, dato de contacto para respuesta y detalle claro de la petición.
+        </p>
+        <p>
+          Las consultas y reclamos se atienden en los plazos previstos por la normativa colombiana aplicable.
+        </p>
+        <h2>9. Menores de edad</h2>
+        <p>
+          La orientación profesional se presta con enfoque de protección reforzada cuando intervienen niñas,
+          niños o adolescentes. Cuando aplique, el contacto inicial y la autorización deben ser gestionados por
+          padre, madre o representante legal.
+        </p>
+        <h2>10. Actualizaciones de esta política</h2>
+        <p>
+          Esta política puede actualizarse por cambios normativos, técnicos u operativos. Cualquier cambio
+          sustancial se publicará en este sitio con su versión y fecha de vigencia correspondiente.
+        </p>
+        <h2>11. Autoridad de protección de datos</h2>
+        <p>
+          Si consideras que no se atendieron adecuadamente tus derechos, puedes acudir a la Superintendencia de
+          Industria y Comercio (SIC), autoridad nacional en materia de protección de datos personales en
+          Colombia.
         </p>
         <p><a class="btn-link" href="${escapeHtml(href(''))}">← Volver al inicio</a></p>
       </div>
