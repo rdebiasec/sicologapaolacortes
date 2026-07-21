@@ -130,23 +130,84 @@ function renderHeader(active = 'home') {
 }
 
 function renderHero() {
+  const trustPills = [
+    'Egresada de la Universidad del Norte',
+    'Más de 20 años de experiencia',
+    'Atención online en Colombia y exterior'
+  ]
+    .map((item) => `<span class="trust-pill">${escapeHtml(item)}</span>`)
+    .join('')
+
   return `
     <section id="inicio" class="hero section">
-      <div class="hero-inner">
-        <div class="chat-bubbles" aria-hidden="true">
-          <div class="bubble bubble-left">No sé por dónde empezar…</div>
-          <div class="bubble bubble-right">Empecemos por aquí.</div>
+      <div class="section-inner hero-grid">
+        <div class="hero-copy">
+          <p class="hero-kicker">Psicología clínica y acompañamiento emocional</p>
+          <h1>Un espacio seguro para entenderte, sanar y estar mejor.</h1>
+          <p class="hero-lead">
+            Soy Paola Cortés, psicóloga. Acompaño procesos de terapia individual, de pareja y de familia,
+            100% online, estés en Colombia o en el exterior.
+          </p>
+          <div class="hero-trust" aria-label="Señales de confianza">
+            ${trustPills}
+          </div>
+          <div class="hero-actions">
+          <a class="btn btn-primary" href="#contacto">Agendar primera conversación</a>
+          <a class="btn btn-outline" href="#como-funciona">Conoce cómo trabajo</a>
+          </div>
+          <p class="hero-micro">Atención en español · Respuesta en horario de atención</p>
         </div>
-        <h1>Un espacio seguro para entenderte, sanar y estar mejor.</h1>
-        <p class="hero-lead">
-          Soy Paola Cortés, psicóloga. Acompaño procesos de terapia individual, de pareja y de familia,
-          100% online, estés en Colombia o en el exterior.
-        </p>
-        <div class="hero-actions">
-          ${renderWhatsAppButton('Escríbeme por WhatsApp', 'hero', 'primary')}
-          <a class="btn-link" href="#como-funciona">Conoce cómo trabajo →</a>
+        <aside class="hero-media" aria-label="Presentación profesional">
+          <div class="hero-photo-card">
+            <img src="${escapeHtml(href('profile-portrait.svg'))}" alt="Retrato profesional de la psicóloga Paola Cortés" />
+          </div>
+          <div class="hero-video-teaser" aria-label="Espacio para video de bienvenida">
+            <span class="teaser-play" aria-hidden="true">▶</span>
+            <div>
+              <p class="teaser-title">Video de bienvenida</p>
+              <p class="teaser-copy">Próximamente: una guía breve sobre cómo es la primera sesión.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  `
+}
+
+function renderTrustHighlights() {
+  const highlights = [
+    {
+      title: 'Formación y trayectoria',
+      body: `Psicóloga ${PROFESSIONAL_CREDENTIAL}, con ${PROFESSIONAL_EXPERIENCE} acompañando procesos terapéuticos.`
+    },
+    {
+      title: 'Enfoque de trabajo',
+      body: 'Integración de psicología humanista y enfoque cognitivo-conductual, combinando calidez y herramientas prácticas.'
+    },
+    {
+      title: 'Confianza y cuidado',
+      body: PROFESSIONAL_LICENSE
+        ? `Tarjeta profesional No. ${PROFESSIONAL_LICENSE}. Atención ética, confidencial y centrada en la persona.`
+        : 'Atención ética, confidencial y centrada en la persona. Credenciales disponibles para verificación al agendar.'
+    }
+  ]
+
+  const cards = highlights
+    .map(
+      (item) => `
+      <article class="trust-card">
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.body)}</p>
+      </article>`
+    )
+    .join('')
+
+  return `
+    <section class="section trust-strip">
+      <div class="section-inner">
+        <div class="trust-grid">
+          ${cards}
         </div>
-        <p class="hero-micro">Atención en español · Respuesta en horario de atención</p>
       </div>
     </section>
   `
@@ -199,7 +260,7 @@ function renderFamiliar() {
           No tienes que esperar a estar “muy mal” para pedir apoyo.
         </p>
         <div class="section-actions">
-          ${renderWhatsAppButton('Escríbeme por WhatsApp', 'es_para_mi', 'outline')}
+          <a class="btn btn-outline" href="#contacto">Quiero dar el primer paso</a>
         </div>
       </div>
     </section>
@@ -250,9 +311,17 @@ function renderHowItWorks() {
     <section id="como-funciona" class="section">
       <div class="section-inner">
         <h2>¿Cómo funciona?</h2>
-        <ol class="steps-list">${steps}</ol>
+        <div class="how-grid">
+          <ol class="steps-list">${steps}</ol>
+          <aside class="process-visual">
+            <img src="${escapeHtml(href('process-journey.svg'))}" alt="Infografía del proceso terapéutico en tres pasos" />
+            <p class="process-note">
+              Un proceso claro, humano y sin presión: contacto inicial, primera sesión y acompañamiento continuo.
+            </p>
+          </aside>
+        </div>
         <div class="section-actions">
-          ${renderWhatsAppButton('Dar el primer paso →', 'primera_sesion', 'primary')}
+          <a class="btn btn-primary" href="#contacto">Agendar primera conversación</a>
         </div>
       </div>
     </section>
@@ -301,6 +370,15 @@ function renderFaq() {
 }
 
 function renderUrgency() {
+  const urgencyCta = isWhatsAppReady()
+    ? renderWhatsAppButton(
+        'Necesito una sesión urgente',
+        'urgencias',
+        'primary',
+        'Hola Paola, necesito una sesión de urgencia'
+      )
+    : '<a class="btn btn-primary" href="#contacto">Solicitar atención prioritaria</a>'
+
   return `
     <section id="urgencias" class="section section-urgency">
       <div class="section-inner narrow">
@@ -310,12 +388,7 @@ function renderUrgency() {
           ofrezco sesiones de urgencia, incluso fuera del horario habitual.
         </p>
         <div class="section-actions">
-          ${renderWhatsAppButton(
-            'Necesito una sesión urgente',
-            'urgencias',
-            'primary',
-            'Hola Paola, necesito una sesión de urgencia'
-          )}
+          ${urgencyCta}
         </div>
         <p class="urgency-note">
           Importante: si existe un riesgo inmediato para tu vida o la de otra persona,
@@ -343,6 +416,9 @@ function renderContact() {
     ? ''
     : '<p>Canales directos de contacto en actualización temporal.</p>'
   const contactMeta = [emailBlock, hoursBlock, igBlock, fallbackMeta].filter(Boolean).join('')
+  const channelCta = isWhatsAppReady()
+    ? renderWhatsAppButton('Escríbeme por WhatsApp', 'contacto', 'outline')
+    : ''
 
   const leadForm = renderLeadForm()
 
@@ -352,7 +428,8 @@ function renderContact() {
         <h2>Hablemos.</h2>
         <p class="section-lead">El primer paso es una conversación. Escríbeme y te responderé personalmente.</p>
         <div class="section-actions">
-          ${renderWhatsAppButton('Escríbeme por WhatsApp', 'contacto', 'primary')}
+          <a class="btn btn-primary" href="#contacto-form">Dejar mis datos de contacto</a>
+          ${channelCta}
         </div>
         ${leadForm}
         <div class="contact-meta">
@@ -369,7 +446,7 @@ function renderLeadForm() {
     'Autorizo el tratamiento de mis datos de contacto para responder mi solicitud, conforme a la Ley 1581 de 2012.'
 
   return `
-    <form class="lead-form-panel lead-form" data-lead-form novalidate>
+    <form id="contacto-form" class="lead-form-panel lead-form" data-lead-form novalidate>
       <h3>Guardar datos de contacto en este dispositivo (opcional)</h3>
       <p class="lead-form-disclaimer">
         Este formulario guarda la información solo en este navegador para que no pierdas tu borrador.
@@ -459,6 +536,21 @@ function renderPrivacyContent() {
   const privacyContactChannel = CONTACT_EMAIL
     ? `<a href="mailto:${escapeHtml(CONTACT_EMAIL)}">${escapeHtml(CONTACT_EMAIL)}</a>`
     : siteContactLink
+  const privacyToc = [
+    ['priv-responsable', 'Responsable del tratamiento'],
+    ['priv-marco', 'Marco legal aplicable'],
+    ['priv-alcance', 'Alcance y categorías de datos'],
+    ['priv-finalidad', 'Finalidades y base jurídica'],
+    ['priv-encargados', 'Encargados, terceros y transferencias'],
+    ['priv-seguridad', 'Medidas de seguridad'],
+    ['priv-retencion', 'Conservación y eliminación'],
+    ['priv-derechos', 'Derechos del titular y procedimiento'],
+    ['priv-menores', 'Menores de edad'],
+    ['priv-cambios', 'Actualizaciones de esta política'],
+    ['priv-sic', 'Autoridad de protección de datos']
+  ]
+    .map(([id, label]) => `<li><a href="#${id}">${escapeHtml(label)}</a></li>`)
+    .join('')
 
   return `
     <section class="section privacy-page">
@@ -469,19 +561,23 @@ function renderPrivacyContent() {
           Esta política explica cómo trato los datos personales que compartes al usar este sitio web y los
           canales de contacto asociados.
         </p>
-        <h2>1. Responsable del tratamiento</h2>
+        <nav class="privacy-toc" aria-label="Índice de política de privacidad">
+          <p class="privacy-toc-title">Índice rápido</p>
+          <ol>${privacyToc}</ol>
+        </nav>
+        <h2 id="priv-responsable">1. Responsable del tratamiento</h2>
         <p>
           Responsable: <strong>${escapeHtml(COMPANY_LEGAL_NAME)}</strong>, ${escapeHtml(BUSINESS_LOCATION)}.
           Canal para asuntos de privacidad y habeas data: ${privacyContactChannel}.
         </p>
-        <h2>2. Marco legal aplicable</h2>
+        <h2 id="priv-marco">2. Marco legal aplicable</h2>
         <p>
           Esta política se elabora conforme a la Ley 1581 de 2012, el Decreto 1377 de 2013, el Decreto 1074
           de 2015 y demás normas colombianas aplicables en protección de datos personales. En el contexto
           terapéutico, también se atienden los deberes de confidencialidad y secreto profesional propios del
           ejercicio de la psicología.
         </p>
-        <h2>3. Alcance y categorías de datos</h2>
+        <h2 id="priv-alcance">3. Alcance y categorías de datos</h2>
         <p>
           Puedo tratar datos de contacto e identificación básica para el primer acercamiento, como nombre,
           teléfono, correo, canal preferido y mensaje breve. En este sitio no se solicita ni se requiere
@@ -491,27 +587,27 @@ function renderPrivacyContent() {
           El formulario web guarda borradores localmente en tu dispositivo (almacenamiento local) para evitar
           pérdida de información durante el diligenciamiento.
         </p>
-        <h2>4. Finalidades y base jurídica</h2>
+        <h2 id="priv-finalidad">4. Finalidades y base jurídica</h2>
         <p>
           Trato los datos para responder solicitudes, orientar sobre servicios, coordinar agenda, mantener
           trazabilidad básica de autorizaciones y cumplir obligaciones legales de protección de datos.
           La base jurídica puede incluir consentimiento del titular, ejecución de medidas precontractuales y
           cumplimiento de deberes legales.
         </p>
-        <h2>5. Encargados, terceros y transferencias</h2>
+        <h2 id="priv-encargados">5. Encargados, terceros y transferencias</h2>
         <p>
           Para operar este sitio puedo apoyarme en proveedores tecnológicos (por ejemplo, hosting, correo o
           herramientas de analítica y seguridad) bajo deberes de confidencialidad y seguridad. Algunos
           proveedores pueden procesar datos fuera de Colombia; cuando aplique, se implementan medidas
           contractuales y de protección razonables conforme a la normativa vigente.
         </p>
-        <h2>6. Medidas de seguridad</h2>
+        <h2 id="priv-seguridad">6. Medidas de seguridad</h2>
         <p>
           Se aplican medidas técnicas, humanas y administrativas razonables para prevenir acceso no autorizado,
           pérdida, uso indebido o alteración de la información, con principios de minimización y acceso
           restringido según necesidad.
         </p>
-        <h2>7. Conservación y eliminación</h2>
+        <h2 id="priv-retencion">7. Conservación y eliminación</h2>
         <p>
           Los borradores locales del formulario se conservan hasta por 180 días y puedes eliminarlos en
           cualquier momento desde el botón “Limpiar datos locales” o borrando datos del navegador.
@@ -520,7 +616,7 @@ function renderPrivacyContent() {
           La información recibida por canales de contacto se conserva solo por el tiempo necesario para atender
           tu solicitud y para el cumplimiento de obligaciones legales o de soporte del servicio.
         </p>
-        <h2>8. Derechos del titular y procedimiento</h2>
+        <h2 id="priv-derechos">8. Derechos del titular y procedimiento</h2>
         <p>
           Puedes conocer, actualizar, rectificar, solicitar supresión de tus datos y revocar la autorización
           cuando proceda. Para ejercer estos derechos, envía tu solicitud por ${privacyContactChannel} e
@@ -529,18 +625,18 @@ function renderPrivacyContent() {
         <p>
           Las consultas y reclamos se atienden en los plazos previstos por la normativa colombiana aplicable.
         </p>
-        <h2>9. Menores de edad</h2>
+        <h2 id="priv-menores">9. Menores de edad</h2>
         <p>
           La orientación profesional se presta con enfoque de protección reforzada cuando intervienen niñas,
           niños o adolescentes. Cuando aplique, el contacto inicial y la autorización deben ser gestionados por
           padre, madre o representante legal.
         </p>
-        <h2>10. Actualizaciones de esta política</h2>
+        <h2 id="priv-cambios">10. Actualizaciones de esta política</h2>
         <p>
           Esta política puede actualizarse por cambios normativos, técnicos u operativos. Cualquier cambio
           sustancial se publicará en este sitio con su versión y fecha de vigencia correspondiente.
         </p>
-        <h2>11. Autoridad de protección de datos</h2>
+        <h2 id="priv-sic">11. Autoridad de protección de datos</h2>
         <p>
           Si consideras que no se atendieron adecuadamente tus derechos, puedes acudir a la Superintendencia de
           Industria y Comercio (SIC), autoridad nacional en materia de protección de datos personales en
@@ -720,6 +816,7 @@ export function mountHome() {
     ${renderHeader()}
     <main id="main-content">
       ${renderHero()}
+      ${renderTrustHighlights()}
       ${renderAbout()}
       ${renderFamiliar()}
       ${renderServices()}

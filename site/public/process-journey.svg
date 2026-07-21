@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Infografia del proceso terapeutico">
+  <rect width="960" height="540" rx="28" fill="#f7f7f4" />
+  <rect x="44" y="52" width="872" height="436" rx="24" fill="#ffffff" />
+
+  <text x="480" y="108" text-anchor="middle" font-family="Lora, Georgia, serif" font-size="42" fill="#1e4e55">
+    Como funciona tu proceso
+  </text>
+
+  <line x1="196" y1="256" x2="764" y2="256" stroke="#87a79a" stroke-width="8" stroke-linecap="round" />
+
+  <circle cx="196" cy="256" r="48" fill="#1e4e55" />
+  <text x="196" y="268" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">1</text>
+  <text x="196" y="340" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#1e4e55">Contacto inicial</text>
+  <text x="196" y="372" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="20" fill="#5a6b75">Mensaje corto</text>
+
+  <circle cx="480" cy="256" r="48" fill="#1e4e55" />
+  <text x="480" y="268" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">2</text>
+  <text x="480" y="340" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#1e4e55">Primera sesion</text>
+  <text x="480" y="372" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="20" fill="#5a6b75">Objetivos y plan</text>
+
+  <circle cx="764" cy="256" r="48" fill="#1e4e55" />
+  <text x="764" y="268" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">3</text>
+  <text x="764" y="340" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#1e4e55">Acompanamiento</text>
+  <text x="764" y="372" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="20" fill="#5a6b75">Ritmo personalizado</text>
+
+  <text x="480" y="438" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="20" fill="#5a6b75">
+    Confidencialidad, claridad y seguimiento continuo
+  </text>
+</svg>

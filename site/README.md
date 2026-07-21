@@ -28,8 +28,20 @@ Si faltan datos opcionales, la UI oculta esos campos o redirige al bloque de con
 - `/privacidad/` — política de datos (Ley 1581)
 - `/404.html` — página 404 amable
 
+## Compatibilidad objetivo
+
+El sitio se mantiene para navegadores modernos (últimas 2 versiones):
+- Safari macOS
+- Safari iOS
+- Chrome (desktop y Android)
+- Edge
+- Firefox
+
+Referencia técnica: `.browserslistrc`.
+
 ## Deploy
 
 - Build verificado: `npm run build`
+- Validación cross-browser: `npm run test:e2e`
 - Publicación principal: GitHub Pages (workflow de Actions)
 - Persistencia: solo navegador visitante (`localStorage`)

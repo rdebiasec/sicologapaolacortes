@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" role="img" aria-label="Retrato profesional ilustrado">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7f7f4" />
+      <stop offset="100%" stop-color="#dce7e1" />
+    </linearGradient>
+    <linearGradient id="jacket" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d5f66" />
+      <stop offset="100%" stop-color="#1e4e55" />
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="900" fill="url(#bg)" />
+  <rect x="56" y="54" width="608" height="792" rx="40" fill="#ffffff" opacity="0.9" />
+
+  <ellipse cx="360" cy="324" rx="112" ry="134" fill="#f2d3c2" />
+  <path d="M246 312c0-78 52-140 114-140s114 62 114 140c0 8-1 16-2 24-10-56-58-95-112-95s-102 39-112 95c-1-8-2-16-2-24z" fill="#4f3d34" />
+  <path d="M278 360c22 44 52 68 82 68s60-24 82-68v40c0 59-37 107-82 107s-82-48-82-107v-40z" fill="#f0c7b1" />
+
+  <path d="M160 764c18-124 88-194 200-194s182 70 200 194z" fill="url(#jacket)" />
+  <path d="M288 590h144l-26 86h-92z" fill="#dce7e1" />
+
+  <circle cx="274" cy="322" r="9" fill="#2d2726" />
+  <circle cx="446" cy="322" r="9" fill="#2d2726" />
+  <path d="M322 398c23 18 53 18 76 0" fill="none" stroke="#aa6b5e" stroke-width="6" stroke-linecap="round" />
+
+  <text x="360" y="812" text-anchor="middle" font-family="Lora, Georgia, serif" font-size="40" fill="#1e4e55">Paola Cortes</text>
+  <text x="360" y="850" text-anchor="middle" font-family="Nunito Sans, Arial, sans-serif" font-size="24" fill="#5a6b75">Psicologa clinica</text>
+</svg>

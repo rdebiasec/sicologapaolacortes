@@ -31,7 +31,7 @@ El build ejecuta:
 Configura en el entorno de build (o en `site/.env` local):
 
 - `VITE_SITE_URL` (obligatoria para canonical/OG/sitemap correctos)
-- `VITE_BASE_PATH` (`/repo/` para GitHub Pages de proyecto, `/` para dominio raíz/Render)
+- `VITE_BASE_PATH` (`/repo/` para GitHub Pages de proyecto, `/` para dominio raíz)
 - Opcionales: `VITE_WHATSAPP_NUMBER`, `VITE_CONTACT_EMAIL`, `VITE_BUSINESS_HOURS`, `VITE_INSTAGRAM_HANDLE`, `VITE_GA4_ID`
 - Persistencia local:
   - `VITE_LEAD_POLICY_VERSION` (ej. `v1.0`)

@@ -1,4 +1,4 @@
-# Go-Live Checklist (GitHub → Pages → Render)
+# Go-Live Checklist (GitHub → Pages)
 
 ## Integridad (bloqueantes)
 
@@ -6,12 +6,13 @@
 - [ ] `npm run build` exitoso sin `example.com` en `dist/`.
 - [ ] Rutas operativas: `/`, `/privacidad/`, `404`.
 - [ ] Sin errores de assets (JS/CSS/favicon/og-image).
+- [ ] `npm run test:e2e` en verde.
 
 ## Seguridad
 
 - [ ] `Content-Security-Policy` presente en `index`, `privacidad` y `404`.
 - [ ] `Referrer-Policy` presente.
-- [ ] `X-Content-Type-Options` y `X-Frame-Options` aplicados en hosting (Pages/Render).
+- [ ] `X-Content-Type-Options` y `X-Frame-Options` aplicados en hosting.
 - [ ] Enlaces externos con `rel="noopener noreferrer"`.
 - [ ] No hay secretos expuestos en frontend (`VITE_*` solo para configuración pública).
 - [ ] Botón para limpiar datos locales funcional.
@@ -39,3 +40,12 @@
 - [ ] Revisar dependencias (`npm outdated`, `npm audit`).
 - [ ] Confirmar que políticas y datos de contacto siguen vigentes.
 - [ ] Confirmar que el copy legal de almacenamiento local sigue vigente.
+
+## Compatibilidad multiplataforma (gate de release)
+
+- [ ] Contract de compatibilidad vigente en `.browserslistrc` (últimas 2 versiones Safari/Chrome/Edge/Firefox).
+- [ ] QA manual iOS Safari (iPhone): navegación, menú móvil, formulario local, CTA y privacidad.
+- [ ] QA manual iPad Safari: layout, sticky header y anclas.
+- [ ] QA manual Android Chrome: navegación, CTA, formulario y FAQ.
+- [ ] QA manual desktop Chrome/Edge/Firefox/Safari: layout, foco teclado, anclas y privacidad.
+- [ ] No se promueve a producción si falla cualquier caso de la matriz.

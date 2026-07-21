@@ -12,10 +12,12 @@ function allowInlineStylesInDevCsp() {
       const cspPattern = /<meta\s+http-equiv="Content-Security-Policy"[^>]*>/i
       if (!cspPattern.test(html)) return html
       return html.replace(cspPattern, (tag) =>
-        tag.replace(
-          "style-src 'self' https://fonts.googleapis.com;",
-          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
-        )
+        tag
+          .replace(
+            "style-src 'self' https://fonts.googleapis.com;",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+          )
+          .replace(/\s*;?\s*upgrade-insecure-requests\b/, '')
       )
     }
   }
@@ -35,6 +37,7 @@ export default defineConfig(({ mode }) => {
     plugins: [allowInlineStylesInDevCsp()],
     base,
     build: {
+      target: 'es2020',
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
