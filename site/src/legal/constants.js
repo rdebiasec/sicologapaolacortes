@@ -2,9 +2,9 @@
 export const COMPANY_LEGAL_NAME = 'Psicóloga Paola Cortés'
 export const SITE_NAME_SHORT = 'Paola Cortés'
 export const SITE_TITLE =
-  'Psicóloga Paola Cortés | Terapia online individual, de pareja y familia'
+  'Psicóloga Paola Cortés | Terapia virtual mundial y presencial en Barranquilla'
 export const SITE_DESCRIPTION =
-  'Terapia online en español con la psicóloga Paola Cortés. Acompañamiento individual, de pareja y familia desde Colombia, también si vives en el exterior.'
+  'Terapia individual, de pareja y familia con Paola Cortés. Virtual desde cualquier parte del mundo; oficinas permanentes en Barranquilla y citas presenciales en Bogotá con anticipación.'
 
 const viteEnv = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {}
 const nodeEnv = typeof process !== 'undefined' && process.env ? process.env : {}
@@ -59,8 +59,16 @@ export const LEAD_POLICY_VERSION = String(
   viteEnv.VITE_LEAD_POLICY_VERSION || nodeEnv.VITE_LEAD_POLICY_VERSION || 'v1.0'
 ).trim()
 
-export const OG_IMAGE = 'og-image.svg'
-export const BUSINESS_LOCATION = 'Bogotá, Colombia'
+export const OG_IMAGE = 'images/og-cover.jpg'
+export const BUSINESS_LOCATION = 'Barranquilla, Colombia'
+export const BUSINESS_CITY = 'Barranquilla'
+/** Full modality line for footer, contact and SEO. */
+export const LOCATION_MODALITIES =
+  'Virtual desde cualquier parte del mundo · Oficinas permanentes en Barranquilla · Bogotá con citas anticipadas'
+
+/** Shorter line for hero pills and compact UI. */
+export const LOCATION_MODALITIES_SHORT =
+  'Virtual mundial · Oficinas en Barranquilla · Bogotá con citas anticipadas'
 
 export function baseUrl() {
   const b = import.meta.env.BASE_URL || '/'

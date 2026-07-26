@@ -11,10 +11,14 @@ test('home renders, CTA navigates and FAQ expands', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Un espacio seguro para entenderte/i })).toBeVisible()
 
   const heroCta = page.getByRole('link', { name: 'Agendar primera conversación' }).first()
-  await expect(heroCta).toHaveAttribute('href', '#contacto')
-  await heroCta.click()
-  await expect(page).toHaveURL(/#contacto$/)
-
+  const href = await heroCta.getAttribute('href')
+  expect(href).toMatch(/^(#contacto|https:\/\/wa\.me\/)/)
+  if (href?.startsWith('#')) {
+    await heroCta.click()
+    await expect(page).toHaveURL(/#contacto$/)
+  } else {
+    await expect(heroCta).toHaveAttribute('target', '_blank')
+  }
   const faqTrigger = page.locator('.faq-trigger').nth(1)
   await faqTrigger.scrollIntoViewIfNeeded()
   await faqTrigger.evaluate((button) => button.click())

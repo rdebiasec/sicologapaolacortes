@@ -10,6 +10,9 @@ import {
   LEAD_POLICY_VERSION,
   OG_IMAGE,
   BUSINESS_LOCATION,
+  BUSINESS_CITY,
+  LOCATION_MODALITIES,
+  LOCATION_MODALITIES_SHORT,
   PROFESSIONAL_CREDENTIAL,
   PROFESSIONAL_EXPERIENCE,
   PROFESSIONAL_LICENSE,
@@ -20,6 +23,7 @@ import {
 import {
   nav,
   familiarPhrases,
+  authorityMoments,
   services,
   processSteps,
   firstSessionPoints,
@@ -63,24 +67,45 @@ function injectSchema() {
     name: COMPANY_LEGAL_NAME,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    image: absoluteUrl('favicon.svg'),
+    image: absoluteUrl(OG_IMAGE),
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Bogotá',
+      addressLocality: BUSINESS_CITY,
       addressCountry: 'CO'
     },
-    areaServed: ['Colombia', 'Online'],
+    areaServed: ['Worldwide', 'Barranquilla', 'Bogotá', 'Colombia', 'Online'],
     availableLanguage: 'Spanish'
   })
   document.head.appendChild(script)
 }
 
-function photoPlaceholder(size = 'lg') {
+/**
+ * Renders a responsive picture. `base` is the asset path without extension so
+ * the browser can pick WebP and fall back to JPEG.
+ */
+function responsivePicture(base, alt, { width, height, eager = false, className = '' } = {}) {
+  const loading = eager
+    ? 'fetchpriority="high" decoding="async"'
+    : 'loading="lazy" decoding="async"'
   return `
-    <div class="photo-placeholder photo-placeholder-${size}" role="img" aria-label="Identidad visual de Paola Cortés">
-      <span class="photo-initials">PC</span>
-      <span class="photo-subtitle">Psicóloga</span>
-    </div>
+    <picture${className ? ` class="${escapeHtml(className)}"` : ''}>
+      <source srcset="${escapeHtml(href(`${base}.webp`))}" type="image/webp" />
+      <img
+        src="${escapeHtml(href(`${base}.jpg`))}"
+        alt="${escapeHtml(alt)}"
+        width="${width}"
+        height="${height}"
+        ${loading}
+      />
+    </picture>
+  `
+}
+
+function portraitImage(base, alt, className = 'portrait-photo') {
+  return `
+    <figure class="${escapeHtml(className)}">
+      ${responsivePicture(base, alt, { width: 913, height: 1186 })}
+    </figure>
   `
 }
 
@@ -122,7 +147,7 @@ function renderHeader(active = 'home') {
         </button>
         <nav id="primary-nav" aria-label="Navegación principal">
           ${links}
-          ${renderWhatsAppButton('Escríbeme', 'navbar', 'primary')}
+          ${renderWhatsAppButton('Agendar por WhatsApp', 'navbar', 'primary')}
         </nav>
       </div>
     </header>
@@ -133,40 +158,51 @@ function renderHero() {
   const trustPills = [
     'Egresada de la Universidad del Norte',
     'Más de 20 años de experiencia',
-    'Atención online en Colombia y exterior'
+    LOCATION_MODALITIES_SHORT
   ]
     .map((item) => `<span class="trust-pill">${escapeHtml(item)}</span>`)
     .join('')
+
+  const primaryCta = isWhatsAppReady()
+    ? renderWhatsAppButton(
+        'Quiero dar el primer paso',
+        'hero',
+        'primary',
+        'Hola Paola, quiero dar el primer paso y agendar una primera conversación.'
+      )
+    : '<a class="btn btn-primary" href="#contacto">Quiero dar el primer paso</a>'
 
   return `
     <section id="inicio" class="hero section">
       <div class="section-inner hero-grid">
         <div class="hero-copy">
-          <p class="hero-kicker">Psicología clínica y acompañamiento emocional</p>
-          <h1>Un espacio seguro para entenderte, sanar y estar mejor.</h1>
+          <p class="hero-kicker">Psicóloga · +20 años acompañando procesos</p>
+          <h1>Cuando todo se siente demasiado, aquí puedes empezar a aliviarte.</h1>
           <p class="hero-lead">
-            Soy Paola Cortés, psicóloga. Acompaño procesos de terapia individual, de pareja y de familia,
-            100% online, estés en Colombia o en el exterior.
+            Soy Paola Cortés. Te acompaño en terapia individual, de pareja y de familia —con calidez,
+            herramientas claras y total confidencialidad. El primer paso es una conversación por WhatsApp,
+            sin compromiso.
           </p>
           <div class="hero-trust" aria-label="Señales de confianza">
             ${trustPills}
           </div>
           <div class="hero-actions">
-          <a class="btn btn-primary" href="#contacto">Agendar primera conversación</a>
-          <a class="btn btn-outline" href="#como-funciona">Conoce cómo trabajo</a>
+          ${primaryCta}
+          <a class="btn btn-outline" href="#es-para-mi">¿Te suena familiar?</a>
           </div>
-          <p class="hero-micro">Atención en español · Respuesta en horario de atención</p>
+          <p class="hero-micro">Te respondo personalmente · En español · Sin presión</p>
         </div>
         <aside class="hero-media" aria-label="Presentación profesional">
           <div class="hero-photo-card">
-            <img src="${escapeHtml(href('profile-portrait.svg'))}" alt="Retrato profesional de la psicóloga Paola Cortés" />
+            ${responsivePicture('images/portrait-hero', 'Paola Cortés en el Congreso Distrital de Salud Mental', {
+              width: 1042,
+              height: 1280,
+              eager: true
+            })}
           </div>
-          <div class="hero-video-teaser" aria-label="Espacio para video de bienvenida">
-            <span class="teaser-play" aria-hidden="true">▶</span>
-            <div>
-              <p class="teaser-title">Video de bienvenida</p>
-              <p class="teaser-copy">Próximamente: una guía breve sobre cómo es la primera sesión.</p>
-            </div>
+          <div class="hero-modality-note" aria-label="Modalidades de atención">
+            <p class="teaser-title">Empieza donde estés</p>
+            <p class="teaser-copy">${escapeHtml(LOCATION_MODALITIES)}</p>
           </div>
         </aside>
       </div>
@@ -174,28 +210,50 @@ function renderHero() {
   `
 }
 
+function trustExpertIcon(kind) {
+  const icons = {
+    formation:
+      '<path d="M12 3l9 5-9 5-9-5 9-5zm0 10l9-5v6.5a1.5 1.5 0 01-.8 1.3L12 21l-8.2-5.2A1.5 1.5 0 013 14.5V8l9 5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+    method:
+      '<path d="M12 21a9 9 0 100-18 9 9 0 000 18z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 12.5l2.2 2.2L15.5 9.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    care:
+      '<path d="M12 20s-7-4.3-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.7-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>'
+  }
+  return `<svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[kind]}</svg>`
+}
+
 function renderTrustHighlights() {
-  const highlights = [
+  const experts = [
     {
-      title: 'Formación y trayectoria',
-      body: `Psicóloga ${PROFESSIONAL_CREDENTIAL}, con ${PROFESSIONAL_EXPERIENCE} acompañando procesos terapéuticos.`
+      kind: 'formation',
+      role: 'Psicóloga clínica',
+      title: 'Formación sólida',
+      body: `${PROFESSIONAL_CREDENTIAL[0].toUpperCase()}${PROFESSIONAL_CREDENTIAL.slice(1)}. Especialidad Gestalt · ${PROFESSIONAL_EXPERIENCE}.`
     },
     {
-      title: 'Enfoque de trabajo',
-      body: 'Integración de psicología humanista y enfoque cognitivo-conductual, combinando calidez y herramientas prácticas.'
+      kind: 'method',
+      role: 'Método humano',
+      title: 'Enfoque práctico',
+      body: 'Humanista + Gestalt: amor propio, emociones y comunicación familiar con herramientas aplicables.'
     },
     {
-      title: 'Confianza y cuidado',
+      kind: 'care',
+      role: 'Ética profesional',
+      title: 'Confianza real',
       body: PROFESSIONAL_LICENSE
-        ? `Tarjeta profesional No. ${PROFESSIONAL_LICENSE}. Atención ética, confidencial y centrada en la persona.`
-        : 'Atención ética, confidencial y centrada en la persona. Credenciales disponibles para verificación al agendar.'
+        ? `Tarjeta profesional No. ${PROFESSIONAL_LICENSE}. Atención confidencial y centrada en ti.`
+        : 'Atención confidencial y centrada en ti. Credenciales verificables al agendar.'
     }
   ]
 
-  const cards = highlights
+  const cards = experts
     .map(
       (item) => `
       <article class="trust-card">
+        <div class="trust-card-top">
+          <span class="trust-icon-wrap">${trustExpertIcon(item.kind)}</span>
+          <span class="trust-role">${escapeHtml(item.role)}</span>
+        </div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.body)}</p>
       </article>`
@@ -203,7 +261,7 @@ function renderTrustHighlights() {
     .join('')
 
   return `
-    <section class="section trust-strip">
+    <section class="trust-strip" aria-label="Por qué confiar en este acompañamiento">
       <div class="section-inner">
         <div class="trust-grid">
           ${cards}
@@ -218,31 +276,197 @@ function renderAbout() {
     ? `Tarjeta profesional No. ${escapeHtml(PROFESSIONAL_LICENSE)}`
     : 'Credenciales profesionales disponibles para verificación al momento de agendar.'
 
+  const aboutCta = isWhatsAppReady()
+    ? renderWhatsAppButton(
+        'Quiero empezar con Paola',
+        'sobre-mi',
+        'primary',
+        'Hola Paola, leí tu perfil y quiero agendar una primera conversación.'
+      )
+    : '<a class="btn btn-primary" href="#contacto">Quiero empezar con Paola</a>'
+
   return `
     <section id="sobre-mi" class="section section-alt">
       <div class="section-inner about-grid">
         <div class="about-photo">
-          ${photoPlaceholder('lg')}
+          ${portraitImage(
+            'images/portrait-about',
+            'Paola Cortés en conferencia en la Universidad del Norte',
+            'about-portrait'
+          )}
         </div>
         <div class="about-copy">
           <h2>Hola, soy Paola.</h2>
           <p>
-            Soy psicóloga ${escapeHtml(PROFESSIONAL_CREDENTIAL)} con
-            ${escapeHtml(PROFESSIONAL_EXPERIENCE)} de experiencia profesional acompañando a adolescentes,
-            adultos, parejas y familias. Trabajo desde la psicología humanista y el enfoque cognitivo-conductual:
-            esto significa que en consulta encontrarás un espacio cálido y sin juicios, junto con herramientas
-            prácticas para los retos que estás viviendo.
+            Psicóloga ${escapeHtml(PROFESSIONAL_CREDENTIAL)}, con especialidad en Orientación y
+            Psicoterapia Gestalt (México) y ${escapeHtml(PROFESSIONAL_EXPERIENCE)} acompañando a
+            adolescentes, adultos, parejas y familias.
           </p>
           <p>
-            Me he especializado en procesos de duelo, dificultades emocionales de la adolescencia y la adultez,
-            relaciones de pareja y dinámicas familiares. Creo profundamente que pedir ayuda no es debilidad:
-            es el primer paso para estar mejor.
+            En consulta encontrarás un espacio sin juicios y con herramientas concretas: amor propio,
+            emociones, comunicación familiar y relaciones más sanas. No vienes a “cumplir un protocolo”:
+            vienes a entenderte y a estar mejor.
+          </p>
+          <p>
+            También coordino Convivencia Escolar y Educación Emocional en la Secretaría de Educación
+            de Barranquilla. Pedir ayuda no es debilidad: es el primer paso.
           </p>
           <p class="trust-line">${trustLine}</p>
+          <div class="section-actions">${aboutCta}</div>
         </div>
       </div>
     </section>
   `
+}
+
+function renderAuthority() {
+  const cards = authorityMoments
+    .map(
+      (item, index) => `
+      <figure class="authority-card${item.featured ? ' authority-card-featured' : ''}">
+        <button
+          type="button"
+          class="authority-trigger"
+          data-lightbox-index="${index}"
+          aria-label="Ampliar imagen: ${escapeHtml(item.title)}"
+        >
+          ${responsivePicture(item.src, item.alt, { width: 640, height: 800 })}
+          <span class="authority-zoom" aria-hidden="true">+</span>
+        </button>
+        <figcaption>
+          <span class="authority-title">${escapeHtml(item.title)}</span>
+          <span class="authority-caption">${escapeHtml(item.caption)}</span>
+        </figcaption>
+      </figure>`
+    )
+    .join('')
+
+  const authorityCta = isWhatsAppReady()
+    ? renderWhatsAppButton(
+        'Quiero agendar con Paola',
+        'autoridad',
+        'primary',
+        'Hola Paola, vi tu trayectoria y quiero agendar una primera conversación.'
+      )
+    : '<a class="btn btn-primary" href="#contacto">Quiero agendar con Paola</a>'
+
+  const stats = [
+    { value: '+20', label: 'años acompañando procesos' },
+    { value: 'Congreso', label: 'y universidades nacionales' },
+    { value: 'Virtual', label: 'desde cualquier parte del mundo' }
+  ]
+    .map(
+      (stat) => `
+      <div class="authority-stat">
+        <span class="authority-stat-value">${escapeHtml(stat.value)}</span>
+        <span class="authority-stat-label">${escapeHtml(stat.label)}</span>
+      </div>`
+    )
+    .join('')
+
+  return `
+    <section id="trayectoria" class="section">
+      <div class="section-inner">
+        <h2>Experiencia que se ve en la práctica</h2>
+        <p class="section-lead">
+          Más de dos décadas en consulta, universidades, congresos de salud mental y educación emocional.
+          No es solo formación: es presencia donde la salud mental se decide y se enseña.
+        </p>
+        <div class="authority-stats">${stats}</div>
+        <div class="authority-grid">${cards}</div>
+        <div class="section-actions">${authorityCta}</div>
+      </div>
+    </section>
+  `
+}
+
+function renderLightbox() {
+  return `
+    <div class="lightbox" data-lightbox hidden>
+      <div class="lightbox-backdrop" data-lightbox-close></div>
+      <div class="lightbox-dialog" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+        <button type="button" class="lightbox-close" data-lightbox-close aria-label="Cerrar imagen">×</button>
+        <button type="button" class="lightbox-nav lightbox-prev" data-lightbox-prev aria-label="Imagen anterior">‹</button>
+        <figure class="lightbox-figure">
+          <img data-lightbox-image src="" alt="" />
+          <figcaption>
+            <span id="lightbox-title" class="lightbox-title" data-lightbox-title></span>
+            <span class="lightbox-caption" data-lightbox-caption></span>
+          </figcaption>
+        </figure>
+        <button type="button" class="lightbox-nav lightbox-next" data-lightbox-next aria-label="Imagen siguiente">›</button>
+      </div>
+    </div>
+  `
+}
+
+function bindLightbox(root = document) {
+  const lightbox = root.querySelector('[data-lightbox]')
+  if (!lightbox) return
+
+  const image = lightbox.querySelector('[data-lightbox-image]')
+  const titleEl = lightbox.querySelector('[data-lightbox-title]')
+  const captionEl = lightbox.querySelector('[data-lightbox-caption]')
+  const closeButton = lightbox.querySelector('.lightbox-close')
+  const triggers = Array.from(root.querySelectorAll('[data-lightbox-index]'))
+  let current = 0
+  let lastFocused = null
+
+  function show(index) {
+    const total = authorityMoments.length
+    current = (index + total) % total
+    const item = authorityMoments[current]
+    image.src = href(`${item.src}.jpg`)
+    image.alt = item.alt
+    titleEl.textContent = item.title
+    captionEl.textContent = item.caption
+  }
+
+  function open(index) {
+    lastFocused = document.activeElement
+    show(index)
+    lightbox.hidden = false
+    document.body.classList.add('lightbox-open')
+    closeButton.focus()
+  }
+
+  function close() {
+    lightbox.hidden = true
+    document.body.classList.remove('lightbox-open')
+    if (lastFocused instanceof HTMLElement) lastFocused.focus()
+  }
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      open(Number(trigger.getAttribute('data-lightbox-index')) || 0)
+    })
+  })
+
+  lightbox.querySelectorAll('[data-lightbox-close]').forEach((el) => {
+    el.addEventListener('click', close)
+  })
+  lightbox.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(current - 1))
+  lightbox.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(current + 1))
+
+  document.addEventListener('keydown', (event) => {
+    if (lightbox.hidden) return
+    if (event.key === 'Escape') close()
+    if (event.key === 'ArrowLeft') show(current - 1)
+    if (event.key === 'ArrowRight') show(current + 1)
+    if (event.key === 'Tab') {
+      // Keep focus inside the dialog while it is open.
+      const focusables = lightbox.querySelectorAll('button')
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+  })
 }
 
 function renderFamiliar() {
@@ -254,13 +478,22 @@ function renderFamiliar() {
     <section id="es-para-mi" class="section">
       <div class="section-inner">
         <h2>¿Te suena familiar?</h2>
+        <p class="section-lead">Si alguna de estas frases te atraviesa, no tienes que cargar con esto en soledad.</p>
         <div class="quote-grid">${cards}</div>
         <p class="section-close">
-          Si te identificas con alguna de estas frases, la terapia puede ayudarte.
-          No tienes que esperar a estar “muy mal” para pedir apoyo.
+          No necesitas esperar a “estar peor”. Pedir apoyo a tiempo también es cuidarte.
         </p>
         <div class="section-actions">
-          <a class="btn btn-outline" href="#contacto">Quiero dar el primer paso</a>
+          ${
+            isWhatsAppReady()
+              ? renderWhatsAppButton(
+                  'Sí, quiero hablarlo',
+                  'es_para_mi',
+                  'primary',
+                  'Hola Paola, me identifiqué con lo que describiste y quiero dar el primer paso.'
+                )
+              : '<a class="btn btn-primary" href="#contacto">Sí, quiero hablarlo</a>'
+          }
         </div>
       </div>
     </section>
@@ -283,10 +516,11 @@ function renderServices() {
     <section id="servicios" class="section section-alt">
       <div class="section-inner">
         <h2>¿En qué te puedo acompañar?</h2>
+        <p class="section-lead">Un proceso a tu medida — individual, pareja, familia o duelo — con claridad desde el primer contacto.</p>
         <div class="services-grid">${cards}</div>
         <p class="section-close">
-          Todas las sesiones son online, por videollamada. Esta modalidad me permite acompañarte con
-          continuidad, estés en Colombia o en el exterior.
+          Atiendo virtual desde cualquier parte del mundo. Presencial en mis oficinas permanentes de
+          Barranquilla y, con citas anticipadas, en Bogotá.
         </p>
       </div>
     </section>
@@ -316,12 +550,21 @@ function renderHowItWorks() {
           <aside class="process-visual">
             <img src="${escapeHtml(href('process-journey.svg'))}" alt="Infografía del proceso terapéutico en tres pasos" />
             <p class="process-note">
-              Un proceso claro, humano y sin presión: contacto inicial, primera sesión y acompañamiento continuo.
+              Tres pasos. Sin formularios eternos. Tú decides el ritmo.
             </p>
           </aside>
         </div>
         <div class="section-actions">
-          <a class="btn btn-primary" href="#contacto">Agendar primera conversación</a>
+          ${
+            isWhatsAppReady()
+              ? renderWhatsAppButton(
+                  'Empezar por WhatsApp',
+                  'primera_sesion',
+                  'primary',
+                  'Hola Paola, quiero agendar mi primera sesión.'
+                )
+              : '<a class="btn btn-primary" href="#contacto">Empezar por WhatsApp</a>'
+          }
         </div>
       </div>
     </section>
@@ -333,7 +576,7 @@ function renderFirstSession() {
   return `
     <section id="primera-sesion" class="section section-alt">
       <div class="section-inner narrow">
-        <h2>Tu primera sesión: qué esperar</h2>
+        <h2>Tu primera sesión (sin sorpresas)</h2>
         <ul class="soft-bullets">${items}</ul>
       </div>
     </section>
@@ -382,17 +625,17 @@ function renderUrgency() {
   return `
     <section id="urgencias" class="section section-urgency">
       <div class="section-inner narrow">
-        <h2>¿Necesitas ayuda urgente?</h2>
+        <h2>Si no puedes esperar, escríbeme ahora</h2>
         <p>
-          Si estás atravesando un momento difícil que no puede esperar, escríbeme:
-          ofrezco sesiones de urgencia, incluso fuera del horario habitual.
+          Cuando el malestar aprieta y necesitas hablar pronto, ofrezco sesiones de urgencia —
+          incluso fuera del horario habitual. Te respondo lo antes posible.
         </p>
         <div class="section-actions">
           ${urgencyCta}
         </div>
         <p class="urgency-note">
           Importante: si existe un riesgo inmediato para tu vida o la de otra persona,
-          comunícate de inmediato con la <strong>Línea 106</strong> (Bogotá, 24 horas)
+          comunícate de inmediato con la <strong>Línea 106</strong> (disponible en varias ciudades)
           o la <strong>Línea 123</strong>, o acude al servicio de urgencias más cercano.
         </p>
       </div>
@@ -416,26 +659,38 @@ function renderContact() {
     ? ''
     : '<p>Canales directos de contacto en actualización temporal.</p>'
   const contactMeta = [emailBlock, hoursBlock, igBlock, fallbackMeta].filter(Boolean).join('')
-  const channelCta = isWhatsAppReady()
-    ? renderWhatsAppButton('Escríbeme por WhatsApp', 'contacto', 'outline')
-    : ''
-
-  const leadForm = renderLeadForm()
+  const primaryCta = isWhatsAppReady()
+    ? renderWhatsAppButton(
+        'Escribirme por WhatsApp',
+        'contacto',
+        'primary',
+        'Hola Paola, quiero agendar una primera conversación.'
+      )
+    : '<a class="btn btn-primary" href="#contacto-form">Dejar mis datos</a>'
+  const secondaryCta = ig
+    ? `<a class="btn btn-outline" href="${escapeHtml(ig)}" target="_blank" rel="noopener noreferrer">Ver Instagram</a>`
+    : CONTACT_EMAIL
+      ? `<a class="btn btn-outline" href="mailto:${escapeHtml(CONTACT_EMAIL)}">Escribirme por correo</a>`
+      : ''
 
   return `
     <section id="contacto" class="section">
       <div class="section-inner narrow contact-block">
-        <h2>Hablemos.</h2>
-        <p class="section-lead">El primer paso es una conversación. Escríbeme y te responderé personalmente.</p>
-        <div class="section-actions">
-          <a class="btn btn-primary" href="#contacto-form">Dejar mis datos de contacto</a>
-          ${channelCta}
+        <h2>Da el primer paso hoy</h2>
+        <p class="section-lead">
+          Una conversación por WhatsApp basta para empezar. Te respondo personalmente,
+          con claridad sobre modalidad, horarios y valor — sin presión.
+        </p>
+        <div class="section-actions contact-primary-actions">
+          ${primaryCta}
+          ${secondaryCta}
         </div>
-        ${leadForm}
+        <p class="contact-proof">+20 años · Confidencial · Virtual mundial · Barranquilla · Bogotá anticipada</p>
         <div class="contact-meta">
           ${contactMeta}
-          <p class="contact-location">${escapeHtml(BUSINESS_LOCATION)} · Atención online</p>
+          <p class="contact-location">${escapeHtml(BUSINESS_LOCATION)} · ${escapeHtml(LOCATION_MODALITIES)}</p>
         </div>
+        ${renderLeadForm()}
       </div>
     </section>
   `
@@ -446,11 +701,12 @@ function renderLeadForm() {
     'Autorizo el tratamiento de mis datos de contacto para responder mi solicitud, conforme a la Ley 1581 de 2012.'
 
   return `
+    <details class="lead-form-details">
+      <summary>¿Prefieres dejar un borrador aquí? (opcional)</summary>
     <form id="contacto-form" class="lead-form-panel lead-form" data-lead-form novalidate>
-      <h3>Guardar datos de contacto en este dispositivo (opcional)</h3>
       <p class="lead-form-disclaimer">
-        Este formulario guarda la información solo en este navegador para que no pierdas tu borrador.
-        Para recibir respuesta, escríbeme por WhatsApp o correo. Te recomiendo no incluir detalles clínicos sensibles.
+        Se guarda solo en este navegador. Para recibir respuesta, escríbeme por WhatsApp o correo.
+        Evita incluir detalles clínicos sensibles.
       </p>
       <div class="lead-grid">
         <label>
@@ -502,6 +758,7 @@ function renderLeadForm() {
       </div>
       <p class="lead-form-status" data-lead-status role="status" aria-live="polite"></p>
     </form>
+    </details>
   `
 }
 
@@ -513,7 +770,7 @@ function renderFooter() {
   return `
     <footer class="site-footer">
       <div class="footer-inner">
-        <p class="footer-brand">${escapeHtml(COMPANY_LEGAL_NAME)} · Terapia online</p>
+        <p class="footer-brand">${escapeHtml(COMPANY_LEGAL_NAME)} · ${escapeHtml(LOCATION_MODALITIES)}</p>
         <nav aria-label="Pie de página">
           ${links}
           <a href="${escapeHtml(href('privacidad/'))}">Política de privacidad</a>
@@ -524,9 +781,28 @@ function renderFooter() {
   `
 }
 
+/** Persistent bottom bar on phones: the primary booking path stays one tap away. */
+function renderMobileCta() {
+  if (!isWhatsAppReady()) return ''
+  return `
+    <div class="mobile-cta" data-mobile-cta>
+      <div class="mobile-cta-copy">
+        <strong>Da el primer paso</strong>
+        <span>Te respondo personalmente</span>
+      </div>
+      ${renderWhatsAppButton(
+        'WhatsApp',
+        'barra_movil',
+        'primary',
+        'Hola Paola, quiero agendar una primera conversación.'
+      )}
+    </div>
+  `
+}
+
 function renderFloating() {
   return `
-    ${renderWhatsAppButton('Escríbeme por WhatsApp', 'flotante', 'floating')}
+    ${renderWhatsAppButton('WhatsApp', 'flotante', 'floating')}
     <div id="chatbot-slot" class="chatbot-slot" data-chatbot-slot hidden aria-hidden="true"><!-- ChatbotSlot: pegar aquí widget externo (convive o reemplaza el flotante WA) --></div>
   `
 }
@@ -818,6 +1094,7 @@ export function mountHome() {
       ${renderHero()}
       ${renderTrustHighlights()}
       ${renderAbout()}
+      ${renderAuthority()}
       ${renderFamiliar()}
       ${renderServices()}
       ${renderHowItWorks()}
@@ -828,8 +1105,11 @@ export function mountHome() {
     </main>
     ${renderFooter()}
     ${renderFloating()}
+    ${renderMobileCta()}
+    ${renderLightbox()}
   `
   bindShell()
+  bindLightbox()
 }
 
 export function mountPrivacy() {
