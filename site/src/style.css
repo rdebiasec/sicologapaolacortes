@@ -489,6 +489,12 @@ section[id],
   overflow: hidden;
   background: #e8eee8;
   box-shadow: var(--shadow-strong);
+  /* Intrinsic 3:4 box; width capped by viewport height so browsers never
+     force a non-uniform scale when max-height would otherwise fight width:100% */
+  aspect-ratio: 3 / 4;
+  width: min(100%, 435px, calc(min(640px, 72vh) * 3 / 4));
+  height: auto;
+  margin-inline: auto;
 }
 
 .hero-photo-card picture,
@@ -496,23 +502,22 @@ section[id],
 .portrait-photo picture {
   display: block;
   width: 100%;
+  height: auto;
 }
 
 .hero-photo-card img {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: cover;
-  /* Keep crown headroom and both shoulders in frame */
-  object-position: center center;
+  /* Matches bitmap 960×1280 — uniform scale only */
   aspect-ratio: 3 / 4;
-  max-height: min(640px, 72vh);
+  object-fit: cover;
+  object-position: center center;
 }
 
 @media (min-width: 980px) {
-  .hero-photo-card img {
-    aspect-ratio: 3 / 4;
-    max-height: 580px;
+  .hero-photo-card {
+    width: min(100%, 435px, calc(580px * 3 / 4));
   }
 }
 
