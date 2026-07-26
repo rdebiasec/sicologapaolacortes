@@ -503,8 +503,8 @@ section[id],
   height: auto;
   display: block;
   object-fit: cover;
-  /* Prefer full standing figure — she should read farther away, not cropped tight */
-  object-position: center 20%;
+  /* Keep crown headroom and both shoulders in frame */
+  object-position: center center;
   aspect-ratio: 3 / 4;
   max-height: min(640px, 72vh);
 }

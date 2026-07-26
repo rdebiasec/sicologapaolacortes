@@ -193,7 +193,7 @@ function renderHero() {
         </div>
         <aside class="hero-media" aria-label="Presentación profesional">
           <div class="hero-photo-card">
-            ${responsivePicture('images/portrait-hero', 'Retrato profesional de la psicóloga Paola Cortés', {
+            ${responsivePicture('images/portrait-hero', 'Paola Cortés en retrato profesional con fondo de bosque', {
               width: 960,
               height: 1280,
               eager: true
