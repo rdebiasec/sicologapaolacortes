@@ -8,3 +8,4 @@
 - Se actualizaron políticas/copy para reflejar almacenamiento local, consentimiento y limpieza de datos.
 - Se limpiaron variables y configuraciones de deploy relacionadas con API fallida/innecesaria.
 - Se enriqueció la landing con fotos reales, copy de conversión y modalidades: virtual mundial, oficinas en Barranquilla y Bogotá con citas anticipadas.
+- Mejora de conversión: hero con retrato cálido, galería compacta, POPLA, “En sus palabras”, urgencias reframed, un CTA móvil, WhatsApp en GitHub Pages y FAQ/horarios más claros.

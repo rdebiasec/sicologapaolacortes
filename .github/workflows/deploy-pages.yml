@@ -57,14 +57,21 @@ jobs:
           if [ -n "${{ vars.VITE_GA4_ID }}" ]; then
             echo "VITE_GA4_ID=${{ vars.VITE_GA4_ID }}" >> "$GITHUB_ENV"
           fi
+          # Public contact fallbacks (also on CV) so Pages never ships without a booking path.
           if [ -n "${{ vars.VITE_WHATSAPP_NUMBER }}" ]; then
             echo "VITE_WHATSAPP_NUMBER=${{ vars.VITE_WHATSAPP_NUMBER }}" >> "$GITHUB_ENV"
+          else
+            echo "VITE_WHATSAPP_NUMBER=573132317273" >> "$GITHUB_ENV"
           fi
           if [ -n "${{ vars.VITE_CONTACT_EMAIL }}" ]; then
             echo "VITE_CONTACT_EMAIL=${{ vars.VITE_CONTACT_EMAIL }}" >> "$GITHUB_ENV"
+          else
+            echo "VITE_CONTACT_EMAIL=Psicologapaolafpc@gmail.com" >> "$GITHUB_ENV"
           fi
           if [ -n "${{ vars.VITE_BUSINESS_HOURS }}" ]; then
             echo "VITE_BUSINESS_HOURS=${{ vars.VITE_BUSINESS_HOURS }}" >> "$GITHUB_ENV"
+          else
+            echo "VITE_BUSINESS_HOURS=Respuesta en horario laboral de Colombia · habitualmente el mismo día hábil" >> "$GITHUB_ENV"
           fi
           if [ -n "${{ vars.VITE_INSTAGRAM_HANDLE }}" ]; then
             echo "VITE_INSTAGRAM_HANDLE=${{ vars.VITE_INSTAGRAM_HANDLE }}" >> "$GITHUB_ENV"

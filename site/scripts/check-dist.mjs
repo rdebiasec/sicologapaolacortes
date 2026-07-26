@@ -46,6 +46,11 @@ async function main() {
     process.exit(1)
   }
 
+  if (process.env.CI === 'true' && /localhost|127\.0\.0\.1/i.test(merged)) {
+    console.error('check-dist: CI build still contains localhost — set VITE_SITE_URL for production')
+    process.exit(1)
+  }
+
   const pages = [
     { name: 'index.html', value: home },
     { name: 'privacidad/index.html', value: privacy },

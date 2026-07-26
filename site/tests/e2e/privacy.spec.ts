@@ -15,7 +15,7 @@ test('privacy page exposes TOC and in-page anchors', async ({ page }) => {
 
   const sicLink = tocLinks.filter({ hasText: 'Autoridad de protección de datos' })
   await sicLink.scrollIntoViewIfNeeded()
-  await sicLink.evaluate((link) => link.click())
+  await sicLink.evaluate((link) => (link as HTMLAnchorElement).click())
   await expect(page).toHaveURL(/#priv-sic$/)
   await expect(page.locator('#priv-sic')).toBeVisible()
 })
@@ -25,5 +25,10 @@ test('privacy page links back to home', async ({ page }) => {
 
   await page.getByRole('link', { name: '← Volver al inicio' }).click()
   await expect(page).toHaveURL(/\/$/)
-  await expect(page.getByRole('heading', { name: /Un espacio seguro para entenderte/i })).toBeVisible()
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: /Cuando todo se siente demasiado/i
+    })
+  ).toBeVisible()
 })

@@ -24,7 +24,11 @@ export const WHATSAPP_NUMBER = rawWhatsApp.replace(/\D/g, '')
 export const CONTACT_EMAIL = String(viteEnv.VITE_CONTACT_EMAIL || nodeEnv.VITE_CONTACT_EMAIL || '').trim()
 
 /** Human-friendly business hours text. */
-export const BUSINESS_HOURS = String(viteEnv.VITE_BUSINESS_HOURS || nodeEnv.VITE_BUSINESS_HOURS || '').trim()
+export const BUSINESS_HOURS = String(
+  viteEnv.VITE_BUSINESS_HOURS ||
+    nodeEnv.VITE_BUSINESS_HOURS ||
+    'Respuesta en horario laboral de Colombia · habitualmente el mismo día hábil'
+).trim()
 
 /** Instagram handle without @. Leave empty to hide. */
 export const INSTAGRAM_HANDLE = String(viteEnv.VITE_INSTAGRAM_HANDLE || nodeEnv.VITE_INSTAGRAM_HANDLE || '')
@@ -66,9 +70,8 @@ export const BUSINESS_CITY = 'Barranquilla'
 export const LOCATION_MODALITIES =
   'Virtual desde cualquier parte del mundo · Oficinas permanentes en Barranquilla · Bogotá con citas anticipadas'
 
-/** Shorter line for hero pills and compact UI. */
-export const LOCATION_MODALITIES_SHORT =
-  'Virtual mundial · Oficinas en Barranquilla · Bogotá con citas anticipadas'
+/** Shorter line for compact UI (avoid repeating the full modalities line in the hero). */
+export const LOCATION_MODALITIES_SHORT = 'Virtual mundial · Barranquilla · Bogotá anticipada'
 
 export function baseUrl() {
   const b = import.meta.env.BASE_URL || '/'

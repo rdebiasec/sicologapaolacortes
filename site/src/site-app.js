@@ -23,14 +23,17 @@ import {
 import {
   nav,
   familiarPhrases,
+  voiceQuotes,
+  methodTool,
   authorityMoments,
   services,
   processSteps,
   firstSessionPoints,
+  experienceHighlights,
   faq
 } from './content/site-content.js'
 import { escapeHtml } from './security/html.js'
-import { initAnalytics } from './analytics.js'
+import { initAnalytics, trackEvent } from './analytics.js'
 import { renderWhatsAppButton, bindWhatsAppTracking, isWhatsAppReady } from './whatsapp.js'
 import {
   persistLeadSubmission,
@@ -155,11 +158,7 @@ function renderHeader(active = 'home') {
 }
 
 function renderHero() {
-  const trustPills = [
-    'Egresada de la Universidad del Norte',
-    'Más de 20 años de experiencia',
-    LOCATION_MODALITIES_SHORT
-  ]
+  const trustPills = ['Universidad del Norte', 'Gestalt · México', '+20 años']
     .map((item) => `<span class="trust-pill">${escapeHtml(item)}</span>`)
     .join('')
 
@@ -190,19 +189,19 @@ function renderHero() {
           ${primaryCta}
           <a class="btn btn-outline" href="#es-para-mi">¿Te suena familiar?</a>
           </div>
-          <p class="hero-micro">Te respondo personalmente · En español · Sin presión</p>
+          <p class="hero-micro">Te respondo el mismo día hábil · En español · Sin presión</p>
         </div>
         <aside class="hero-media" aria-label="Presentación profesional">
           <div class="hero-photo-card">
-            ${responsivePicture('images/portrait-hero', 'Paola Cortés en el Congreso Distrital de Salud Mental', {
-              width: 1042,
+            ${responsivePicture('images/portrait-hero', 'Retrato profesional de la psicóloga Paola Cortés', {
+              width: 960,
               height: 1280,
               eager: true
             })}
           </div>
           <div class="hero-modality-note" aria-label="Modalidades de atención">
             <p class="teaser-title">Empieza donde estés</p>
-            <p class="teaser-copy">${escapeHtml(LOCATION_MODALITIES)}</p>
+            <p class="teaser-copy">${escapeHtml(LOCATION_MODALITIES_SHORT)}</p>
           </div>
         </aside>
       </div>
@@ -307,10 +306,9 @@ function renderAbout() {
             emociones, comunicación familiar y relaciones más sanas. No vienes a “cumplir un protocolo”:
             vienes a entenderte y a estar mejor.
           </p>
-          <p>
-            También coordino Convivencia Escolar y Educación Emocional en la Secretaría de Educación
-            de Barranquilla. Pedir ayuda no es debilidad: es el primer paso.
-          </p>
+          <ul class="soft-bullets about-experience">
+            ${experienceHighlights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
           <p class="trust-line">${trustLine}</p>
           <div class="section-actions">${aboutCta}</div>
         </div>
@@ -367,10 +365,9 @@ function renderAuthority() {
   return `
     <section id="trayectoria" class="section">
       <div class="section-inner">
-        <h2>Experiencia que se ve en la práctica</h2>
+        <h2>Trayectoria en pocas imágenes</h2>
         <p class="section-lead">
-          Más de dos décadas en consulta, universidades, congresos de salud mental y educación emocional.
-          No es solo formación: es presencia donde la salud mental se decide y se enseña.
+          Congreso, universidades, medios y educación emocional: la misma profesional que te acompaña en consulta.
         </p>
         <div class="authority-stats">${stats}</div>
         <div class="authority-grid">${cards}</div>
@@ -500,6 +497,51 @@ function renderFamiliar() {
   `
 }
 
+function renderVoiceQuotes() {
+  const cards = voiceQuotes
+    .map(
+      (item) => `
+      <article class="voice-card">
+        <h3>${escapeHtml(item.title)}</h3>
+        <blockquote><p>“${escapeHtml(item.quote)}”</p></blockquote>
+      </article>`
+    )
+    .join('')
+
+  return `
+    <section id="en-sus-palabras" class="section section-alt">
+      <div class="section-inner">
+        <h2>En sus palabras</h2>
+        <p class="section-lead">Ideas de Paola sobre amor propio, emociones y fracaso — el tono con el que trabaja en consulta.</p>
+        <div class="voice-grid">${cards}</div>
+      </div>
+    </section>
+  `
+}
+
+function renderMethodTool() {
+  const steps = methodTool.steps
+    .map(
+      (step) => `
+      <li class="popla-step">
+        <span class="popla-letter" aria-hidden="true">${escapeHtml(step.letter)}</span>
+        <span>${escapeHtml(step.word)}</span>
+      </li>`
+    )
+    .join('')
+
+  return `
+    <section id="herramienta" class="section">
+      <div class="section-inner narrow">
+        <h2>${escapeHtml(methodTool.title)}</h2>
+        <p class="section-lead">${escapeHtml(methodTool.lead)}</p>
+        <ol class="popla-list">${steps}</ol>
+        <p class="section-close">${escapeHtml(methodTool.close)}</p>
+      </div>
+    </section>
+  `
+}
+
 function renderServices() {
   const cards = services
     .map(
@@ -615,29 +657,29 @@ function renderFaq() {
 function renderUrgency() {
   const urgencyCta = isWhatsAppReady()
     ? renderWhatsAppButton(
-        'Necesito una sesión urgente',
-        'urgencias',
+        'Pedir consulta prioritaria',
+        'consulta_prioritaria',
         'primary',
-        'Hola Paola, necesito una sesión de urgencia'
+        'Hola Paola, necesito una consulta prioritaria según tu disponibilidad.'
       )
-    : '<a class="btn btn-primary" href="#contacto">Solicitar atención prioritaria</a>'
+    : '<a class="btn btn-primary" href="#contacto">Pedir consulta prioritaria</a>'
 
   return `
     <section id="urgencias" class="section section-urgency">
       <div class="section-inner narrow">
-        <h2>Si no puedes esperar, escríbeme ahora</h2>
+        <h2>¿Necesitas hablar pronto?</h2>
+        <p class="urgency-crisis">
+          Si hay riesgo inmediato para tu vida o la de otra persona, llama ahora a la
+          <strong>Línea 123</strong> o la <strong>Línea 106</strong>, o acude al servicio de urgencias más cercano.
+          Esta web no es un servicio de emergencias.
+        </p>
         <p>
-          Cuando el malestar aprieta y necesitas hablar pronto, ofrezco sesiones de urgencia —
-          incluso fuera del horario habitual. Te respondo lo antes posible.
+          Si lo que buscas es una <strong>consulta prioritaria</strong> (no emergencia),
+          escríbeme y coordinamos según disponibilidad — a veces con horario extendido.
         </p>
         <div class="section-actions">
           ${urgencyCta}
         </div>
-        <p class="urgency-note">
-          Importante: si existe un riesgo inmediato para tu vida o la de otra persona,
-          comunícate de inmediato con la <strong>Línea 106</strong> (disponible en varias ciudades)
-          o la <strong>Línea 123</strong>, o acude al servicio de urgencias más cercano.
-        </p>
       </div>
     </section>
   `
@@ -678,8 +720,8 @@ function renderContact() {
       <div class="section-inner narrow contact-block">
         <h2>Da el primer paso hoy</h2>
         <p class="section-lead">
-          Una conversación por WhatsApp basta para empezar. Te respondo personalmente,
-          con claridad sobre modalidad, horarios y valor — sin presión.
+          Una conversación por WhatsApp basta para empezar. Te respondo personalmente
+          (habitualmente el mismo día hábil), con claridad sobre modalidad, horarios y valor — sin presión.
         </p>
         <div class="section-actions contact-primary-actions">
           ${primaryCta}
@@ -702,11 +744,11 @@ function renderLeadForm() {
 
   return `
     <details class="lead-form-details">
-      <summary>¿Prefieres dejar un borrador aquí? (opcional)</summary>
+      <summary data-lead-draft-summary>Borrador local (no me llega a mí — opcional)</summary>
     <form id="contacto-form" class="lead-form-panel lead-form" data-lead-form novalidate>
       <p class="lead-form-disclaimer">
-        Se guarda solo en este navegador. Para recibir respuesta, escríbeme por WhatsApp o correo.
-        Evita incluir detalles clínicos sensibles.
+        Esto <strong>no envía</strong> tu mensaje. Solo guarda un borrador en este navegador.
+        Para que te responda, usa WhatsApp o correo. Evita detalles clínicos sensibles.
       </p>
       <div class="lead-grid">
         <label>
@@ -735,7 +777,7 @@ function renderLeadForm() {
           <option value="duelo">Proceso de duelo</option>
           <option value="ansiedad">Ansiedad / regulación emocional</option>
           <option value="depresion">Estado de ánimo</option>
-          <option value="urgencia">Acompañamiento urgente</option>
+          <option value="urgencia">Consulta prioritaria</option>
           <option value="general">Otro tema</option>
         </select>
       </label>
@@ -801,8 +843,14 @@ function renderMobileCta() {
 }
 
 function renderFloating() {
+  // Desktop-only floating bubble; on phones the sticky bar is the single CTA.
+  if (!isWhatsAppReady()) {
+    return `<div id="chatbot-slot" class="chatbot-slot" data-chatbot-slot hidden aria-hidden="true"></div>`
+  }
   return `
-    ${renderWhatsAppButton('WhatsApp', 'flotante', 'floating')}
+    <div class="floating-wa-desktop">
+      ${renderWhatsAppButton('WhatsApp', 'flotante', 'floating')}
+    </div>
     <div id="chatbot-slot" class="chatbot-slot" data-chatbot-slot hidden aria-hidden="true"><!-- ChatbotSlot: pegar aquí widget externo (convive o reemplaza el flotante WA) --></div>
   `
 }
@@ -924,9 +972,21 @@ function renderPrivacyContent() {
   `
 }
 
+function setNavOpen(open) {
+  const toggle = document.querySelector('.nav-toggle')
+  const navEl = document.querySelector('#primary-nav')
+  document.body.classList.toggle('nav-open', open)
+  toggle?.setAttribute('aria-expanded', String(open))
+  if (navEl) {
+    if (open) navEl.removeAttribute('inert')
+    else navEl.setAttribute('inert', '')
+  }
+}
+
 function bindHeader() {
   const header = document.querySelector('[data-header]')
   const toggle = document.querySelector('.nav-toggle')
+  const navEl = document.querySelector('#primary-nav')
   const onScroll = () => {
     if (!header) return
     header.classList.toggle('is-scrolled', window.scrollY > 24)
@@ -934,16 +994,18 @@ function bindHeader() {
   onScroll()
   window.addEventListener('scroll', onScroll, { passive: true })
 
+  // Closed mobile drawer should not stay in the focus order.
+  if (navEl && window.matchMedia('(max-width: 900px)').matches) {
+    navEl.setAttribute('inert', '')
+  }
+
   toggle?.addEventListener('click', () => {
-    const open = document.body.classList.toggle('nav-open')
-    toggle.setAttribute('aria-expanded', String(open))
+    const open = !document.body.classList.contains('nav-open')
+    setNavOpen(open)
   })
 
   document.querySelectorAll('#primary-nav a').forEach((link) => {
-    link.addEventListener('click', () => {
-      document.body.classList.remove('nav-open')
-      toggle?.setAttribute('aria-expanded', 'false')
-    })
+    link.addEventListener('click', () => setNavOpen(false))
   })
 }
 
@@ -961,6 +1023,7 @@ function bindFaq() {
         btn.setAttribute('aria-expanded', 'true')
         const panel = document.getElementById(btn.getAttribute('aria-controls'))
         if (panel) panel.hidden = false
+        trackEvent('faq_open', { question: btn.textContent?.trim()?.slice(0, 80) || '' })
       }
     })
   })
@@ -971,10 +1034,7 @@ function bindScrollFades() {
   const sections = document.querySelectorAll('main > section:not(.hero)')
   sections.forEach((section) => {
     section.classList.add('fade-section')
-    if (reduce) {
-      section.classList.add('is-visible')
-      return
-    }
+    if (reduce) section.classList.add('is-visible')
   })
   if (reduce) return
   const io = new IntersectionObserver(
@@ -986,9 +1046,26 @@ function bindScrollFades() {
         }
       })
     },
-    { threshold: 0.12 }
+    { threshold: 0.08, rootMargin: '0px 0px -8% 0px' }
   )
   sections.forEach((s) => io.observe(s))
+  // Reveal anything already in view on first paint (avoids blank/stuck sections).
+  requestAnimationFrame(() => {
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect()
+      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+        section.classList.add('is-visible')
+        io.unobserve(section)
+      }
+    })
+  })
+}
+
+function bindLeadDraftDetails() {
+  const details = document.querySelector('details.lead-form-details')
+  details?.addEventListener('toggle', () => {
+    if (details.open) trackEvent('lead_draft_open')
+  })
 }
 
 function bindShell() {
@@ -997,6 +1074,7 @@ function bindShell() {
   bindFaq()
   bindWhatsAppTracking(document)
   bindLeadForm()
+  bindLeadDraftDetails()
   bindScrollFades()
 }
 
@@ -1093,11 +1171,13 @@ export function mountHome() {
     <main id="main-content">
       ${renderHero()}
       ${renderTrustHighlights()}
-      ${renderAbout()}
-      ${renderAuthority()}
       ${renderFamiliar()}
       ${renderServices()}
       ${renderHowItWorks()}
+      ${renderMethodTool()}
+      ${renderAbout()}
+      ${renderVoiceQuotes()}
+      ${renderAuthority()}
       ${renderFirstSession()}
       ${renderFaq()}
       ${renderUrgency()}

@@ -841,13 +841,20 @@ body.lightbox-open {
     display: flex;
   }
 
-  /* Keep the floating bubble clear of the sticky bar. */
-  .whatsapp-float {
-    bottom: 5.5rem;
+  /* One mobile CTA only: sticky bar. Hide the floating bubble. */
+  .floating-wa-desktop {
+    display: none;
   }
 
+  /* Leave room so contact controls are not covered by the sticky WA bar. */
+  #contacto,
   .site-footer {
-    padding-bottom: 5rem;
+    padding-bottom: 6.5rem;
+  }
+
+  .lead-form-details,
+  #contacto-form {
+    scroll-margin-bottom: 6rem;
   }
 }
 
@@ -1283,10 +1290,88 @@ body.lightbox-open {
   color: var(--text-secondary);
 }
 
-.urgency-note {
-  margin-top: 1.75rem;
-  font-size: 0.92rem;
+.urgency-note,
+.urgency-crisis {
+  margin-top: 1rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
+}
+
+.urgency-crisis {
+  margin-top: 0;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--primary);
+  background: color-mix(in srgb, var(--support) 70%, #fff);
+}
+
+.about-experience {
+  margin: 1.25rem 0 0;
+}
+
+.voice-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 800px) {
+  .voice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.voice-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.voice-card blockquote {
+  margin: 0;
+}
+
+.voice-card blockquote p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.popla-list {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .popla-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.popla-step {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.9rem 0.5rem;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+
+.popla-letter {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.05rem;
 }
 
 .contact-block .contact-meta {
@@ -1582,11 +1667,14 @@ body.lightbox-open {
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.55s ease, transform 0.55s ease;
+  /* Invisible sections must not steal taps/clicks on mobile. */
+  pointer-events: none;
 }
 
 .fade-section.is-visible {
   opacity: 1;
   transform: none;
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1594,5 +1682,12 @@ body.lightbox-open {
     opacity: 1;
     transform: none;
     animation: none;
+  }
+
+  .fade-section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    pointer-events: auto;
   }
 }

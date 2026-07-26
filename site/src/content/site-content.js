@@ -2,9 +2,8 @@
 
 export const nav = [
   { href: '#inicio', label: 'Inicio' },
-  { href: '#sobre-mi', label: 'Sobre mí' },
-  { href: '#trayectoria', label: 'Trayectoria' },
   { href: '#servicios', label: 'Servicios' },
+  { href: '#sobre-mi', label: 'Sobre mí' },
   { href: '#como-funciona', label: 'Cómo funciona' },
   { href: '#preguntas', label: 'Preguntas' },
   { href: '#contacto', label: 'Contacto' }
@@ -17,12 +16,44 @@ export const familiarPhrases = [
   'Con mi pareja ya no sabemos hablarnos sin discutir.',
   'Mi hijo adolescente se está alejando y no sé cómo acercarme.',
   'Siento que estoy perdiendo el amor propio y me juzgo demasiado.',
-  'Mis emociones me desbordan y no sé cómo atenderlas.'
+  'El fracaso me paraliza y ya no confío en mí.'
 ]
 
+/** Short quotes from Paola’s own essays — her voice, not invented patient reviews. */
+export const voiceQuotes = [
+  {
+    title: 'Amor propio',
+    quote:
+      'Necesitamos trabajar en autodescubrirnos: enriquecer el autoconcepto, amarnos y creer que sí podemos.'
+  },
+  {
+    title: 'Emociones',
+    quote:
+      'Las emociones nos indican, nos hablan, te quieren enseñar. No las ignores más: atiéndelas y regúlalas con inteligencia.'
+  },
+  {
+    title: 'Fracaso',
+    quote:
+      'Si tomas las lecciones del fracaso y decides seguir, ya no será fracaso: será un peldaño para lo más hermoso de tus años.'
+  }
+]
+
+/** Concrete tool highlighted on the site (from Paola’s psychoeducation material). */
+export const methodTool = {
+  title: 'POPLA: un freno antes de reaccionar',
+  lead: 'Una herramienta simple de educación emocional para pausar en medio del conflicto familiar o de pareja.',
+  steps: [
+    { letter: 'P', word: 'Para' },
+    { letter: 'O', word: 'Observa' },
+    { letter: 'P', word: 'Piensa' },
+    { letter: 'L', word: 'Luego' },
+    { letter: 'A', word: 'Actúa' }
+  ],
+  close: 'No es magia: es práctica. En sesión lo adaptamos a tu caso.'
+}
+
 /**
- * Gallery of public work. `featured` items render large in the mosaic, so the
- * first three carry the strongest credibility signals.
+ * Compact gallery of public work. Featured items render large in the mosaic.
  */
 export const authorityMoments = [
   {
@@ -36,51 +67,27 @@ export const authorityMoments = [
     src: 'images/authority-unilibre',
     alt: 'Panel “Un café que inspira” en la Universidad Libre',
     title: 'Universidad Libre',
-    caption: 'Panel “Un café que inspira” por el Día Mundial de la Salud Mental.',
+    caption: 'Panel por el Día Mundial de la Salud Mental.',
     featured: true
   },
   {
-    src: 'images/authority-cafe',
-    alt: 'Paola Cortés en conversatorio de herramientas de familia en la Universidad Autónoma',
-    title: 'Universidad Autónoma',
-    caption: 'Conversatorio de herramientas para la familia.',
+    src: 'images/authority-radio',
+    alt: 'Paola Cortés en radio conversando sobre salud mental',
+    title: 'Medios y salud mental',
+    caption: 'Conversaciones públicas para acercar la psicología a más personas.',
     featured: true
-  },
-  {
-    src: 'images/authority-conferencia',
-    alt: 'Paola Cortés dando una conferencia por el Día de la Mujer',
-    title: 'Conferencia Día de la Mujer',
-    caption: 'Espacios de bienestar emocional para mujeres.'
   },
   {
     src: 'images/authority-talleres',
     alt: 'Paola Cortés en un taller de educación emocional con una niña',
-    title: 'Talleres de educación emocional',
-    caption: 'Trabajo directo con niñas, niños y familias.'
-  },
-  {
-    src: 'images/authority-adolescentes',
-    alt: 'Paola Cortés hablando con estudiantes adolescentes',
-    title: 'Trabajo con adolescentes',
-    caption: 'Acompañamiento en colegios y comunidades educativas.'
-  },
-  {
-    src: 'images/authority-acoso',
-    alt: 'Paola Cortés en una jornada de prevención del acoso escolar',
-    title: 'Prevención del acoso escolar',
-    caption: 'Programa de convivencia escolar, Barranquilla.'
-  },
-  {
-    src: 'images/authority-conflictos',
-    alt: 'Paola Cortés hablando sobre resolución de conflictos',
-    title: 'Resolución de conflictos',
-    caption: 'Metodología cooperativa para la convivencia.'
+    title: 'Educación emocional',
+    caption: 'Talleres con niñas, niños y familias.'
   },
   {
     src: 'images/authority-virtual',
     alt: 'Paola Cortés atendiendo una sesión virtual',
     title: 'Atención virtual',
-    caption: 'Sesiones por videollamada con la misma cercanía.'
+    caption: 'La misma cercanía, desde donde estés.'
   }
 ]
 
@@ -107,40 +114,47 @@ export const services = [
   },
   {
     title: 'Orientación psicoeducativa',
-    body: 'Apoyo en convivencia, educación emocional y procesos escolares cuando la casa o el colegio lo piden.'
+    body: 'Apoyo en convivencia, educación emocional, escuela de padres y procesos escolares cuando la casa o el colegio lo piden.'
   },
   {
-    title: 'Atención de urgencia',
-    body: 'Si necesitas hablar pronto, coordinamos una sesión prioritaria — incluso fuera del horario habitual.'
+    title: 'Consulta prioritaria',
+    body: 'Si necesitas hablar pronto, coordinamos una sesión prioritaria según disponibilidad — no es atención de emergencias.'
   }
 ]
 
 export const processSteps = [
   {
     title: 'Me escribes por WhatsApp.',
-    body: 'Cuéntame en pocas líneas qué te trae. Te respondo personalmente, sin presión ni formularios largos.'
+    body: 'Cuéntame en pocas líneas qué te trae. Te respondo personalmente en horario laboral (Colombia), sin presión ni formularios largos.'
   },
   {
     title: 'Agendamos tu primera sesión.',
-    body: 'Acordamos modalidad (virtual o presencial) y horario. Te comparto el valor y los datos de pago (Nequi, Bancolombia o Daviplata).'
+    body: 'Acordamos modalidad y horario. Te comparto el valor con claridad y los datos de pago (Nequi, Bancolombia o Daviplata) antes de empezar.'
   },
   {
     title: 'Comenzamos tu proceso.',
-    body: 'Sesiones confidenciales, a tu ritmo. Virtual desde cualquier parte del mundo; presencial en Barranquilla (oficinas permanentes) y en Bogotá con citas anticipadas.'
+    body: 'Sesiones confidenciales, a tu ritmo. Virtual desde cualquier parte del mundo; presencial en Barranquilla (oficinas permanentes) y Bogotá con citas anticipadas.'
   }
 ]
 
 export const firstSessionPoints = [
   'Es una conversación, no un examen. No necesitas “explicarlo todo bien”: a eso llegamos juntos.',
-  'Escucho qué te trae, qué esperas del proceso y resolvemos tus dudas antes de avanzar.',
+  'Escucho qué te trae, qué esperas del proceso y resolvemos tus dudas —incluido el valor— antes de avanzar.',
   'Todo lo que compartas es confidencial.',
   'Al final decidimos juntos cómo continuar — sin compromisos ni presiones.'
+]
+
+export const experienceHighlights = [
+  'Coordinadora de Convivencia Escolar y Educación Emocional — Secretaría de Educación de Barranquilla (actual).',
+  'Psicóloga en Colegio de Inteligencias Múltiples — Veracruz, México.',
+  'Programa de Capacitación y Bienestar Emocional — COMBARRANQUILLA.',
+  'Psicóloga clínica — Clínica Renal de la Costa.'
 ]
 
 export const faq = [
   {
     q: '¿Cuánto cuesta una sesión?',
-    a: 'El valor depende del tipo de proceso (individual, pareja o familia). Escríbeme por WhatsApp y te lo digo con claridad, sin compromiso.'
+    a: 'El valor varía según el tipo de proceso (individual, pareja o familia). Antes de agendar te lo comparto por WhatsApp con claridad, sin compromiso ni sorpresas. Así decides con información completa.'
   },
   {
     q: '¿Cómo se realiza el pago?',
@@ -155,12 +169,20 @@ export const faq = [
     a: 'Sí. Por videollamada te acompaño desde cualquier país, en español.'
   },
   {
-    q: '¿Atiendes urgencias?',
-    a: 'Sí. Ofrezco sesiones prioritarias con disponibilidad extendida. Escríbeme y coordinamos lo antes posible.'
+    q: '¿Cuánto tarda en responder?',
+    a: 'Respondo personalmente en horario laboral de Colombia. En la mayoría de los casos, el mismo día hábil.'
+  },
+  {
+    q: '¿Ofreces consulta prioritaria?',
+    a: 'Sí, según disponibilidad — incluso con horarios extendidos cuando es posible. No reemplaza una emergencia médica o de riesgo vital: en ese caso usa la Línea 123 o 106.'
   },
   {
     q: '¿Cuánto dura una sesión?',
     a: 'Individual: entre 50 y 60 minutos. En pareja o familia puede ajustarse según el caso.'
+  },
+  {
+    q: '¿Qué pasa si necesito cancelar o reprogramar?',
+    a: 'Avísame con la mayor anticipación posible para ofrecerte otro horario. Si surge algo excepcional, lo revisamos contigo.'
   },
   {
     q: '¿La terapia online funciona?',
