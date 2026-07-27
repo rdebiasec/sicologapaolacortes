@@ -30,7 +30,9 @@ import {
   processSteps,
   firstSessionPoints,
   experienceHighlights,
-  faq
+  faq,
+  faqTodo,
+  todoPlaceholders
 } from './content/site-content.js'
 import { escapeHtml } from './security/html.js'
 import { initAnalytics, trackEvent } from './analytics.js'
@@ -41,6 +43,34 @@ import {
   readLeadDraft,
   clearLocalLeadData
 } from './persistence.js'
+
+/**
+ * Unmissable neon-yellow mock block for Paola to replace with real data.
+ * @param {string} id two-digit todo id, e.g. "01"
+ * @param {string} innerHtml already-escaped or trusted markup for the mock body
+ */
+function paolaTodo(id, innerHtml, { tag = 'div', className = '' } = {}) {
+  const nn = String(id).padStart(2, '0')
+  const extra = className ? ` ${className}` : ''
+  return `<${tag} class="paola-todo${extra}" data-todo-id="${escapeHtml(nn)}">
+    <span class="paola-todo-badge">[#${escapeHtml(nn)} · COMPLETAR]</span>
+    <div class="paola-todo-body">${innerHtml}</div>
+  </${tag}>`
+}
+
+function todoText(id) {
+  const item = todoPlaceholders[id]
+  return item?.text ? escapeHtml(item.text) : ''
+}
+
+function renderTodoBanner() {
+  return `
+    <aside class="paola-todo-banner" role="status" aria-label="Modo revisión de datos incompletos">
+      <strong>MODO REVISIÓN LOCAL</strong>
+      <span>Los bloques neón amarillos con [#NN · COMPLETAR] son mocks. Completar con datos reales — ver <code>site/PLACEHOLDERS.md</code>.</span>
+    </aside>
+  `
+}
 
 function setMeta({ title, description, path = '' }) {
   document.title = title
@@ -177,6 +207,8 @@ function renderHero() {
         <div class="hero-copy">
           <p class="hero-kicker">Psicóloga · +20 años acompañando procesos</p>
           <h1>Cuando todo se siente demasiado, aquí puedes empezar a aliviarte.</h1>
+          ${paolaTodo('14', `<p class="paola-todo-lead">${todoText('14')}</p>`)}
+          ${paolaTodo('02', `<p>${todoText('02')}</p>`)}
           <p class="hero-lead">
             Soy Paola Cortés. Te acompaño en terapia individual, de pareja y de familia —con calidez,
             herramientas claras y total confidencialidad. El primer paso es una conversación por WhatsApp,
@@ -265,6 +297,7 @@ function renderTrustHighlights() {
         <div class="trust-grid">
           ${cards}
         </div>
+        ${paolaTodo('03', `<p><strong>${escapeHtml(todoPlaceholders['03'].label)}:</strong> ${todoText('03')}</p>`)}
       </div>
     </section>
   `
@@ -310,6 +343,7 @@ function renderAbout() {
             ${experienceHighlights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
           </ul>
           <p class="trust-line">${trustLine}</p>
+          ${paolaTodo('01', `<p><strong>${escapeHtml(todoPlaceholders['01'].label)}:</strong> ${todoText('01')}</p>`)}
           <div class="section-actions">${aboutCta}</div>
         </div>
       </div>
@@ -477,6 +511,11 @@ function renderFamiliar() {
         <h2>¿Te suena familiar?</h2>
         <p class="section-lead">Si alguna de estas frases te atraviesa, no tienes que cargar con esto en soledad.</p>
         <div class="quote-grid">${cards}</div>
+        ${paolaTodo(
+          '04',
+          `<p><strong>Para quién sí:</strong> ${escapeHtml(todoPlaceholders['04'].si)}</p>
+           <p><strong>Para quién no:</strong> ${escapeHtml(todoPlaceholders['04'].no)}</p>`
+        )}
         <p class="section-close">
           No necesitas esperar a “estar peor”. Pedir apoyo a tiempo también es cuidarte.
         </p>
@@ -596,6 +635,7 @@ function renderHowItWorks() {
             </p>
           </aside>
         </div>
+        ${paolaTodo('07', `<p><strong>${escapeHtml(todoPlaceholders['07'].label)}:</strong> ${todoText('07')}</p>`)}
         <div class="section-actions">
           ${
             isWhatsAppReady()
@@ -620,25 +660,103 @@ function renderFirstSession() {
       <div class="section-inner narrow">
         <h2>Tu primera sesión (sin sorpresas)</h2>
         <ul class="soft-bullets">${items}</ul>
+        ${paolaTodo('06', `<p><strong>${escapeHtml(todoPlaceholders['06'].label)}:</strong> ${todoText('06')}</p>`)}
+        ${paolaTodo('19', `<p><strong>${escapeHtml(todoPlaceholders['19'].label)}:</strong> ${todoText('19')}</p>`)}
+      </div>
+    </section>
+  `
+}
+
+function renderPricingMock() {
+  return `
+    <section id="precio" class="section">
+      <div class="section-inner narrow">
+        <h2>Inversión (borrador)</h2>
+        <p class="section-lead">Bloque temporal para que Paola confirme el valor real antes de publicar.</p>
+        ${paolaTodo('05', `<p class="paola-todo-price">${todoText('05')}</p>`)}
+      </div>
+    </section>
+  `
+}
+
+function renderAvailabilityMock() {
+  const slots = todoPlaceholders['08'].slots
+    .map((slot) => `<li>${escapeHtml(slot)}</li>`)
+    .join('')
+  return `
+    <section id="disponibilidad" class="section section-alt">
+      <div class="section-inner narrow">
+        <h2>Próximas franjas (mock)</h2>
+        <p class="section-lead">Cupos inventados solo para revisión local.</p>
+        ${paolaTodo(
+          '08',
+          `<p>${escapeHtml(todoPlaceholders['08'].note)}</p>
+           <ul class="soft-bullets">${slots}</ul>`
+        )}
+      </div>
+    </section>
+  `
+}
+
+function renderTestimonialsMock() {
+  const cards = ['09', '10', '11']
+    .map((id) => {
+      const item = todoPlaceholders[id]
+      return paolaTodo(
+        id,
+        `<p class="testimonial-name">${escapeHtml(item.name)} · COMPLETAR</p>
+         <blockquote><p>${escapeHtml(item.quote)}</p></blockquote>`,
+        { tag: 'article', className: 'testimonial-card' }
+      )
+    })
+    .join('')
+
+  const reviews = todoPlaceholders['12']
+  return `
+    <section id="testimonios" class="section">
+      <div class="section-inner">
+        <h2>Lo que dicen (mocks por completar)</h2>
+        <p class="section-lead">Nombres inventados. Reemplazar por testimonios reales autorizados.</p>
+        <div class="testimonials-grid">${cards}</div>
+        ${paolaTodo(
+          '12',
+          `<p><a href="${escapeHtml(reviews.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(reviews.text)}</a></p>`
+        )}
       </div>
     </section>
   `
 }
 
 function renderFaq() {
-  const items = faq
+  const baseItems = faq.map((item) => ({ ...item, todoId: null }))
+  const todoItems = faqTodo.map((id) => ({
+    q: todoPlaceholders[id].q,
+    a: todoPlaceholders[id].a,
+    todoId: id
+  }))
+  const all = [...baseItems, ...todoItems]
+
+  const items = all
     .map((item, i) => {
       const answer = item.a
         ? escapeHtml(item.a)
         : 'Te respondo esta pregunta personalmente al momento de agendar, según tu caso.'
+      const isTodo = Boolean(item.todoId)
+      const open = i === 0 || isTodo
+      const panel = isTodo
+        ? paolaTodo(item.todoId, `<p>${answer}</p>`)
+        : `<p>${answer}</p>`
+      const todoBadge = isTodo
+        ? `<span class="paola-todo-badge paola-todo-badge-inline">[#${escapeHtml(item.todoId)} · COMPLETAR]</span> `
+        : ''
       return `
-        <div class="faq-item">
-          <button type="button" class="faq-trigger" aria-expanded="${i === 0 ? 'true' : 'false'}" aria-controls="faq-panel-${i}" id="faq-btn-${i}">
-            ${escapeHtml(item.q)}
+        <div class="faq-item${isTodo ? ' faq-item-todo' : ''}">
+          <button type="button" class="faq-trigger" aria-expanded="${open ? 'true' : 'false'}" aria-controls="faq-panel-${i}" id="faq-btn-${i}">
+            ${todoBadge}${escapeHtml(item.q)}
             <span class="faq-chevron" aria-hidden="true"></span>
           </button>
-          <div class="faq-panel" id="faq-panel-${i}" role="region" aria-labelledby="faq-btn-${i}" ${i === 0 ? '' : 'hidden'}>
-            <p>${answer}</p>
+          <div class="faq-panel" id="faq-panel-${i}" role="region" aria-labelledby="faq-btn-${i}" ${open ? '' : 'hidden'}>
+            ${panel}
           </div>
         </div>`
     })
@@ -715,6 +833,9 @@ function renderContact() {
       ? `<a class="btn btn-outline" href="mailto:${escapeHtml(CONTACT_EMAIL)}">Escribirme por correo</a>`
       : ''
 
+  const igMock = todoPlaceholders['13']
+  const gmb = todoPlaceholders['20']
+
   return `
     <section id="contacto" class="section">
       <div class="section-inner narrow contact-block">
@@ -732,6 +853,19 @@ function renderContact() {
           ${contactMeta}
           <p class="contact-location">${escapeHtml(BUSINESS_LOCATION)} · ${escapeHtml(LOCATION_MODALITIES)}</p>
         </div>
+        ${
+          ig
+            ? ''
+            : paolaTodo(
+                '13',
+                `<p>${escapeHtml(igMock.text)}</p>
+                 <p><a href="https://www.instagram.com/${escapeHtml(igMock.handle)}/" target="_blank" rel="noopener noreferrer">@${escapeHtml(igMock.handle)}</a></p>`
+              )
+        }
+        ${paolaTodo(
+          '20',
+          `<p><a href="${escapeHtml(gmb.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(gmb.text)}</a></p>`
+        )}
         ${renderLeadForm()}
       </div>
     </section>
@@ -1168,15 +1302,19 @@ export function mountHome() {
   injectSchema()
   app.innerHTML = `
     ${renderHeader()}
+    ${renderTodoBanner()}
     <main id="main-content">
       ${renderHero()}
       ${renderTrustHighlights()}
       ${renderFamiliar()}
       ${renderServices()}
+      ${renderPricingMock()}
       ${renderHowItWorks()}
+      ${renderAvailabilityMock()}
       ${renderMethodTool()}
       ${renderAbout()}
       ${renderVoiceQuotes()}
+      ${renderTestimonialsMock()}
       ${renderAuthority()}
       ${renderFirstSession()}
       ${renderFaq()}

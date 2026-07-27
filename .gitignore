@@ -2,6 +2,7 @@
 site/node_modules
 site/dist
 site/.env
+site/logs
 api/.venv
 api/.env
 api/.pytest_cache

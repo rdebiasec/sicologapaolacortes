@@ -12,6 +12,17 @@ npm run dev
 
 Abre **http://localhost:5181/**
 
+### Servicio persistente (macOS LaunchAgent)
+
+Para que Vite no se apague al cerrar terminals de Cursor, usa el LaunchAgent:
+
+```bash
+./scripts/dev-service-install.sh   # instalar / arrancar
+./scripts/dev-service-status.sh    # estado + puerto
+./scripts/dev-service-uninstall.sh # quitar
+```
+
+Detalle: [DEV-SERVICE.md](./DEV-SERVICE.md). URL del servicio: http://127.0.0.1:5181/
 ## Datos pendientes
 
 Configura en variables de entorno (ver `.env.example`) o en `src/legal/constants.js`:
